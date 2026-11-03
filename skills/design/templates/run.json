@@ -1,0 +1,19 @@
+{
+  "harness": "product-design-harness",
+  "schema": 1,
+  "request": "",
+  "step": "frame",
+  "paused": false,
+  "briefApproved": null,
+  "preview": {
+    "url": null,
+    "start": null,
+    "states": {}
+  },
+  "figma": {
+    "links": [],
+    "calls": 0,
+    "budget": 4
+  },
+  "reviewRounds": 0
+}

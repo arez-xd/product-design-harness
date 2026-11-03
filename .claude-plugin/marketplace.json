@@ -1,0 +1,36 @@
+{
+  "name": "arez-xd",
+  "owner": {
+    "name": "Adam Reznik",
+    "url": "https://github.com/arez-xd"
+  },
+  "metadata": {
+    "description": "Agent skills and harnesses by Adam Reznik"
+  },
+  "plugins": [
+    {
+      "name": "product-design-harness",
+      "source": "./",
+      "description": "A product design team for Claude Code, from a brief to reviewed screens in code.",
+      "category": "design"
+    },
+    {
+      "name": "design-taste",
+      "source": {
+        "source": "github",
+        "repo": "arez-xd/ux-ui-design-taste"
+      },
+      "description": "A product designer's judgment for UI built by agents: hierarchy, spacing, restrained colour, real content and accessible states.",
+      "category": "design"
+    },
+    {
+      "name": "what-breaks-in-ai-code",
+      "source": {
+        "source": "github",
+        "repo": "arez-xd/what-breaks-in-ai-code"
+      },
+      "description": "Code review for apps built with AI agents: what breaks when real users arrive, a plain verdict and a fix for every finding.",
+      "category": "code-review"
+    }
+  ]
+}
