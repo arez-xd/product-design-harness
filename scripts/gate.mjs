@@ -77,14 +77,15 @@ function section(text, title) {
   return text.split(/^## /m).find((s) => new RegExp(`^${title}\\b`, 'i').test(s)) ?? ''
 }
 
-// True when the "Success criteria" section of brief.md has a list item (a bullet or a number) that isn't the
-// template placeholder.
+// True when the "Success criteria" (or "Success criterion") section of brief.md has a line that isn't the template
+// placeholder: a bullet, a numbered item or a plain line such as "Done when …".
 export function criteriaFilled(text) {
-  return section(text, 'Success criteria')
+  return section(text, 'Success criteri(?:a|on)')
     .replace(/<!--[\s\S]*?-->/g, '')
     .split('\n')
-    .map((line) => line.match(/^\s*(?:[-*+]|\d+[.)])\s+(.+?)\s*$/)?.[1])
-    .some((item) => item && !/^<[^>]*>$/.test(item))
+    .slice(1)
+    .map((line) => line.replace(/^\s*(?:[-*+]|\d+[.)])\s+/, '').trim())
+    .some((item) => item && !/^<[^>]*>$/.test(item) && !/^[-|: ]+$/.test(item))
 }
 
 // True when a section of a design file has a table row below its header that isn't a placeholder.
@@ -240,7 +241,10 @@ function pre(root, input, run) {
     return fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : ''
   }
   if (!criteriaFilled(design('brief.md'))) {
-    return block(`${rel} is a screen, and screens wait for the brief: design/brief.md has no success criteria yet. ${ESCAPE}`)
+    return block(
+      `${rel} is a screen, and screens wait for the brief: design/brief.md has no success criteria yet (a line under its ` +
+        `"## Success criteria" heading). ${ESCAPE}`
+    )
   }
   if (!run.briefApproved) {
     return block(
@@ -371,8 +375,10 @@ function main(mode) {
   const runFile = path.join(root, 'design', 'run.json')
   if (!fs.existsSync(runFile)) return 0
   const run = readJson(runFile)
-  if (run.paused === true) return 0
-  if (run.step === 'done' && closed(root, run)) return 0
+  // Who starts and stops is recorded even while the gates are quiet, so the next run doesn't inherit a stale record.
+  const records = mode === 'start' || mode === 'agent'
+  if (!records && run.paused === true) return 0
+  if (!records && run.step === 'done' && closed(root, run)) return 0
   return MODES[mode](root, input, run)
 }
 

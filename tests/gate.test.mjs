@@ -286,6 +286,15 @@ test('the user\'s models in run.json win', () => {
   assert.equal(family('gpt-5'), null)
 })
 
+test('a finished run still records who starts and stops', () => {
+  const root = project({ ...READY, run: { ...READY.run, step: 'done', mode: 'frame' } })
+  run('start', root, started('code-reviewer', 'c9'))
+  run('agent', root, finished('code-reviewer', 'c9'))
+  const state = JSON.parse(fs.readFileSync(path.join(root, 'design/.harness/state.json'), 'utf8'))
+  assert.deepEqual(state.running, {})
+  assert.equal(run('pre', root, write('src/App.tsx')).status, 0, 'the gates stay quiet')
+})
+
 test('the lead finishing a subagent-less turn records nothing', () => {
   const root = project(READY)
   run('agent', root, { hook_event_name: 'SubagentStop' })
@@ -307,6 +316,8 @@ test('the templates read as empty', () => {
   assert.equal(criteriaFilled('## Success criteria\n\n- Loads in < 2 s on 4G\n'), true)
   assert.equal(criteriaFilled('## Success criteria\n\n1. **Book a class quickly.** Signal: 5 of 5 book in 45 s\n'), true, 'a numbered list counts')
   assert.equal(criteriaFilled('## Success criteria\n\n1) <criterion>\n'), false)
+  assert.equal(criteriaFilled('## Success criterion\n\nDone when: every row over 10,000 shows the phone.\n\n## Assumptions\n'), true, 'a quick brief')
+  assert.equal(criteriaFilled('## Success criteria\n\n## Principles\n\n- Rows over cards\n'), false, 'the next section doesn\'t count')
   assert.equal(tableFilled(tpl('flows.md'), 'States'), false)
   assert.equal(tableFilled(FLOWS, 'States'), true)
   assert.equal(tableFilled(tpl('copy.md'), 'Strings'), false)
