@@ -305,6 +305,8 @@ test('the templates read as empty', () => {
   assert.equal(criteriaFilled(tpl('brief.md')), false)
   assert.equal(criteriaFilled(FILLED), true)
   assert.equal(criteriaFilled('## Success criteria\n\n- Loads in < 2 s on 4G\n'), true)
+  assert.equal(criteriaFilled('## Success criteria\n\n1. **Book a class quickly.** Signal: 5 of 5 book in 45 s\n'), true, 'a numbered list counts')
+  assert.equal(criteriaFilled('## Success criteria\n\n1) <criterion>\n'), false)
   assert.equal(tableFilled(tpl('flows.md'), 'States'), false)
   assert.equal(tableFilled(FLOWS, 'States'), true)
   assert.equal(tableFilled(tpl('copy.md'), 'Strings'), false)

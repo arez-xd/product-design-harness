@@ -40,9 +40,11 @@ Always look at the problem before the screens: who does this work, what a good d
 
 **`design/system.md`**: colour roles, type, spacing, radii and elevation with their tokens and values, components to reuse with their variants and states, patterns the product already has, and the sources you read. List under "Gaps" what this work will need and the system lacks. With no design system at all, say so at the top: the UI teammate lays the foundations after the user picks a direction.
 
-**Options in `design/decisions.md`**, under "Open": for each of the one to three decisions that shape the work (layout model, navigation, density, how a key action works), two or three options in a table scored against the success criteria and principles, with the cost of each and your recommendation.
+**Options in `design/decisions.md`**, under "Open": for each of the one to three decisions that shape the work (layout model, navigation, density, how a key action works), two or three options in a table scored against the success criteria and principles, with the cost of each and your recommendation. Leave them open, even when the request says your proposals count as approved: the lead records the choice, the user's or its own.
 
-**Visual directions**, in step 2 of a run from a brief alone: two or three directions as one open decision. Each names its tone, density, colour roles with values, type families and scale, radius and elevation, the references it leans on, and what it suits and costs against the principles. Keep them distinct enough to be a real choice.
+**Visual directions**, in step 2 of a run from a brief alone: two or three directions as one open decision. Each names its tone, density, colour roles with values, type families and scale, radius and elevation, the references it leans on, and what it suits and costs against the principles. Keep them distinct enough to be a real choice. In step 1 of such a run, leave the direction to step 2.
+
+Show the directions as well as describing them: write `design/directions.html` with the same sample once per direction, each in its own tokens: the key screen's header with its primary action, three or four rows or cards of real-looking content, and one state such as empty or error. Render it with the way to see the page from your task message, look at the screenshot, judge each direction there against the principles, and name the screenshot in the decision.
 
 ## Hand back
 

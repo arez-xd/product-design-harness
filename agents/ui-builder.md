@@ -35,7 +35,7 @@ When `system.md` says there is no design system, lay one down before any screen,
 - **Calm rows.** Each row leads with what decides the action; secondary details sit in a quieter line or open on demand. Repeated row actions are icon buttons or a single menu, so the actions don't outweigh the content.
 - **Data of every size.** Render the many-items and long-content states with data of that size (a fixture with ten times the rows, the longest real values) and fix what wraps, clips or overflows.
 
-Before you hand back, render every state with the way to see the page from your task message (`preview.render` in `design/run.json`), look at each screenshot at the brief's viewport, fix what looks unfinished, and run Design Taste's slop scan on the main screen. When a command is refused, use another allowed route; install nothing.
+Before you hand back, render every state with the way to see the page from your task message (`preview.render` in `design/run.json`), look at each screenshot at the brief's viewport, fix what looks unfinished, and run Design Taste's slop scan on the main screen. Keep commands plain (one screenshot per command, no shell variables, loops or chained commands), since permission rules refuse those far more often. When a command is still refused, use another allowed route; install nothing.
 
 ## Preview
 

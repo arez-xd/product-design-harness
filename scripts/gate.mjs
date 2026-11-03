@@ -77,12 +77,13 @@ function section(text, title) {
   return text.split(/^## /m).find((s) => new RegExp(`^${title}\\b`, 'i').test(s)) ?? ''
 }
 
-// True when the "Success criteria" section of brief.md has a bullet that isn't the template placeholder.
+// True when the "Success criteria" section of brief.md has a list item (a bullet or a number) that isn't the
+// template placeholder.
 export function criteriaFilled(text) {
   return section(text, 'Success criteria')
     .replace(/<!--[\s\S]*?-->/g, '')
     .split('\n')
-    .map((line) => line.match(/^\s*[-*]\s+(.+?)\s*$/)?.[1])
+    .map((line) => line.match(/^\s*(?:[-*+]|\d+[.)])\s+(.+?)\s*$/)?.[1])
     .some((item) => item && !/^<[^>]*>$/.test(item))
 }
 
