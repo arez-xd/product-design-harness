@@ -70,6 +70,16 @@ test('only the UI teammate writes screens once everything is in place', () => {
   assert.equal(run('pre', root, write(path.join(root, 'src/App.tsx'), 'ui-builder')).status, 0)
 })
 
+test('a quick change needs the brief and the UI teammate, and still the reviews before finishing', () => {
+  const root = project({ run: { mode: 'quick', briefApproved: 'x' }, brief: FILLED })
+  assert.equal(run('pre', root, write('src/App.tsx')).status, 2, 'the lead still delegates')
+  assert.equal(run('pre', root, write('src/App.tsx', 'ui-builder')).status, 0, 'no wait for flows and copy')
+  run('post', root, write('src/App.tsx', 'ui-builder'))
+  assert.equal(JSON.parse(run('stop', root, {}).stdout).decision, 'block')
+  const unbriefed = project({ run: { mode: 'quick', briefApproved: 'x' } })
+  assert.equal(run('pre', unbriefed, write('src/App.tsx', 'ui-builder')).status, 2, 'a quick change still says what done is')
+})
+
 test('flows.md and copy.md belong to their teammates', () => {
   const root = project(READY)
   assert.equal(run('pre', root, write('design/flows.md')).status, 2)

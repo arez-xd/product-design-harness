@@ -39,6 +39,18 @@ A product design team for Claude Code. One request takes a brief, or a Figma fra
 /product-design capture Buttons come from the design system, never custom ones.
 ```
 
+## Before it starts
+
+The lead asks three questions, each answer with a line on what it means, unless your request already settles them:
+
+| Question | Options |
+|---|---|
+| Mode | Full path (a new screen, flow or feature) · Quick change (one state, a string or a fix on a screen that exists) · Brief and decisions only · Review only |
+| Models | On Opus: Opus where quality shows (brief, build, design review) and Sonnet for flows, copy and interface-only code review · Opus for everyone · Sonnet for everyone. On Sonnet: Sonnet for everyone · Opus for build and design review |
+| Checkpoints | Ask me at the brief and the options · Decide yourself, show me at the end |
+
+In a headless run, it takes what the request says and the recommended answers, says the plan and starts. As a guide from runs on Sonnet, the full path for one screen took 15 to 30 minutes and cost ten or more times a single prompt.
+
 ## The team
 
 | Teammate | What it does |
@@ -61,7 +73,11 @@ A product design team for Claude Code. One request takes a brief, or a Figma fra
 6. **Review.** The design reviewer gets the preview and the spec, never the builder's notes: every state, copy against the glossary, values the design system doesn't have, accessibility checked by hand, the markers of generated-looking UI, prototype honesty, deceptive patterns. Two rounds of fixes at most.
 7. **Hand off.** What is final, the design-system changes, the UX debt and a usability test plan.
 
-`/product-design frame`, `build`, `review`, `feedback` (crit notes or test findings into changes) and `handoff` run one part.
+`/product-design quick` makes a small change to a screen that exists: the UI teammate builds it and both reviewers check what it touched, once, under the project's rules and decisions. `/product-design frame`, `build`, `review`, `feedback` (crit notes or test findings into changes), `handoff` and `capture` (a rule for the project) run one part.
+
+## Models
+
+Every teammate runs on your session's model unless the plan says otherwise. On Opus, flows, copy and a code review of interface-only changes run on Sonnet, where Opus adds little; a code review that touches server code, data writes, money or permissions stays on Opus. Any of it can be set per teammate in `design/run.json` under `models`. If `CLAUDE_CODE_SUBAGENT_MODEL` is set in your environment, check that it doesn't override the plan: before Claude Code 2.1.251 it took precedence over everything.
 
 ## From a brief alone
 

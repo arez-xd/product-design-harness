@@ -17,5 +17,7 @@
     "budget": 4
   },
   "reviewRounds": 0,
-  "mode": "full"
+  "mode": "full",
+  "models": {},
+  "checkpoints": "ask"
 }

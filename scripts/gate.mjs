@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Product Design Harness gates. Node 18+. Reads the hook's JSON input from stdin.
-//   node gate.mjs pre     PreToolUse on Write|Edit|MultiEdit: screens wait for the brief, the flows and the copy, and
-//                         only the UI teammate writes them; flows.md and copy.md belong to their teammates
+//   node gate.mjs pre     PreToolUse on Write|Edit|MultiEdit: screens wait for the brief, the flows and the copy (a
+//                         quick change, the brief only), and only the UI teammate writes them; flows.md and copy.md
+//                         belong to their teammates
 //   node gate.mjs post    PostToolUse on Write|Edit|MultiEdit: records which screens changed, and when
 //   node gate.mjs agent   SubagentStop: records which teammate finished, and when
 //   node gate.mjs stop    Stop: asks for the design review and the code review when screens changed after them
@@ -135,10 +136,11 @@ function pre(root, input, run) {
         `principles in design/brief.md; when they agree, set "briefApproved" in design/run.json to the date and time. ${ESCAPE}`
     )
   }
-  if (!tableFilled(design('flows.md'), 'States')) {
+  // A quick change works on screens whose states and copy already exist; the full path waits for both.
+  if (run.mode !== 'quick' && !tableFilled(design('flows.md'), 'States')) {
     return block(`${rel} is a screen, and screens wait for the states: delegate step 3 to ${PLUGIN}:flows, which writes design/flows.md. ${ESCAPE}`)
   }
-  if (!tableFilled(design('copy.md'), 'Strings')) {
+  if (run.mode !== 'quick' && !tableFilled(design('copy.md'), 'Strings')) {
     return block(`${rel} is a screen, and screens wait for the copy: delegate step 4 to ${PLUGIN}:copywriter, which writes design/copy.md. ${ESCAPE}`)
   }
   if (who !== 'ui-builder') {
