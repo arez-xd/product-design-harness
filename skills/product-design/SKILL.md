@@ -45,19 +45,18 @@ The rest (`brief.md`, `flows.md`, `copy.md`, `review.md`, `handoff.md`, `test-pl
 
 ## Models
 
-You run on the session's model. Each teammate runs on the model you pass in the Agent call's `model` (an alias: `opus`, `sonnet`, `haiku` or `fable`); with none, it runs on yours.
+You run on the session's model. A teammate runs on the model in the Agent call's `model` (an alias: `opus`, `sonnet`, `haiku` or `fable`), and on yours when the call has none. Pass `model` in two cases only:
 
-| Teammate | When the session runs on Opus or Fable | On any other model |
-|---|---|---|
-| Brief, UI, Design review | Your model: research, visual quality and the review of it are where a stronger model shows | Your model |
-| Flows, Copy | `sonnet` | Your model |
-| Code review | `sonnet` when the changed files are interface only (pages, components, styles, client scripts); your model when they touch server code, data writes, money, permissions or infrastructure | Your model |
+1. **The session runs on Opus or Fable.** Flows and Copy get `"model": "sonnet"`. So does Code review when the changed files are interface only (pages, components, styles, client scripts); a code review of server code, data writes, money, permissions or infrastructure runs on your model.
+2. **The user chose a model.** `run.json` holds it under `models`, by teammate (`{"ui-builder": "opus", "flows": "haiku"}`) or for all (`{"all": "sonnet"}`), and it wins over case 1. Write what the user says there ("build and review on Opus, the rest on Sonnet"), then pass it in each call it covers.
 
-The user can set any of it in `run.json` under `models`, by teammate (`{"ui-builder": "opus", "flows": "haiku"}`) or for all (`{"all": "sonnet"}`), and that wins over this table. Write what they say there ("build and review on Opus, the rest on Sonnet"). Tell the user if a model they asked for isn't available to their account: Claude Code then runs that teammate on another model and says which.
+In every other call, leave `model` out, whatever the session runs on. Brief, UI and Design review always run on your model: research, visual quality and the review of it are where a stronger model shows. A teammate never runs above your model unless the user asked for it. The hook refuses an Agent call whose model breaks these rules and says what to pass. Tell the user if a model they asked for isn't available to their account: Claude Code then runs that teammate on another model and says which.
 
 ## The path
 
 Each step is one call of the Agent tool (called Task in some versions) with the `subagent_type` from the table and a task message that holds the step, the paths to read (always including `rules.md`, `sources.md` and `decisions.md`), what to write and the way to see the page. Read what the teammate wrote in the files; its final message is a summary.
+
+**One step at a time.** Teammates work in the background. Start a step, then end your turn: the teammate's completion notice wakes you. While it works, don't poll (ListAgents, Monitor, ScheduleWakeup, sleep), don't message it to ask how it's going, and don't start a placeholder agent to wait. When the notice arrives, read what the teammate wrote, then start the next step. Only the two reviewers work at the same time. Review findings go back to `ui-builder` after both reviewers have returned: start it again with the path to `review.md`, or continue the same teammate with SendMessage.
 
 | # | Step | Call | Checkpoint |
 |---|---|---|---|
@@ -71,7 +70,7 @@ Each step is one call of the Agent tool (called Task in some versions) with the 
 
 Set `step` in `run.json` as you enter each step.
 
-**The hooks.** A screen file can't be written until `brief.md` has success criteria, the brief is approved, and `flows.md` and `copy.md` are filled (a quick change needs only the brief); then only `ui-builder` can write it. `flows.md` and `copy.md` belong to their teammates. You can't finish while screens changed after the last design review, code review and `review.md` verdict; `done` closes the run only once they are fresh. When a hook blocks you, do what it says: delegate.
+**The hooks.** A screen file (markup, styles and the scripts the page runs on) can't be written until `brief.md` has success criteria, the brief is approved, and `flows.md` and `copy.md` are filled (a quick change needs only the brief); then only `ui-builder` can write it. `flows.md` and `copy.md` belong to their teammates. A teammate can't start while a step it waits for is still working, and an Agent call can't set a model the rules above don't give. You can't finish while screens changed after the last design review, code review and `review.md` verdict, though you can always end a turn to wait for a teammate; `done` closes the run only once the reviews are fresh. When a hook blocks you, do what it says.
 
 **The design reviewer works blind.** It gets the preview, the way to see the page and the spec. Never pass the UI teammate's message, summary or reasoning.
 
@@ -116,7 +115,7 @@ Everything read is cached in `design/figma/` (the context as Markdown, variables
 
 ## Modes
 
-- **quick**: a small change to a screen that exists, with `"mode": "quick"` in `run.json`. Write a short `brief.md` yourself: the change, why, and one success criterion ("done when …"); the user's request is the approval, so set `briefApproved` from it. Carry `flows.md` and `copy.md` forward from the last run in `design/history/` when there is one. Then: `flows` only if the change adds or changes a state, `copywriter` only if it adds or changes strings, `ui-builder` for the change, and one round of `design-reviewer` on the screens and states it touched with `code-reviewer` on the changed files, in parallel. A Blocker gets one more round; everything else goes into the hand-over. The project's rules, decisions and system hold as in a full run. If the change turns out to be bigger (a new screen, a new flow, a decision that needs options), stop and tell the user it needs the full path.
+- **quick**: a small change to a screen that exists, with `"mode": "quick"` in `run.json`. Write a short `brief.md` yourself: the change, why, and one success criterion ("done when …"); the user's request is the approval, so set `briefApproved` from it. Carry `flows.md` and `copy.md` forward from the last run in `design/history/` when there is one. Then, one after another: `flows` only if the change adds or changes a state, `copywriter` only if it adds or changes strings, `ui-builder` for the change, and one round of `design-reviewer` on the screens and states it touched together with `code-reviewer` on the changed files. A Blocker gets one more round; everything else goes into the hand-over. The project's rules, decisions and system hold as in a full run. If the change turns out to be bigger (a new screen, a new flow, a decision that needs options), stop and tell the user it needs the full path.
 - **frame**: steps 1 and 2, with `"mode": "frame"` in `run.json`. Ends with the approved brief and the decisions.
 - **build**: needs `briefApproved`. Steps 3 to 6.
 - **review**: step 6 on screens that already exist. Without a brief, write a short one from the request, mark it as assumed and show it to the user with the review.

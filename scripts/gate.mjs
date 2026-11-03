@@ -4,20 +4,44 @@
 //                         quick change, the brief only), and only the UI teammate writes them; flows.md and copy.md
 //                         belong to their teammates
 //   node gate.mjs post    PostToolUse on Write|Edit|MultiEdit: records which screens changed, and when
+//   node gate.mjs spawn   PreToolUse on Agent|Task|SendMessage: a teammate waits for the step before it, and runs on
+//                         the model the rules give it
+//   node gate.mjs start   SubagentStart: records which teammates are working
 //   node gate.mjs agent   SubagentStop: records which teammate finished, and when
-//   node gate.mjs stop    Stop: asks for the design review and the code review when screens changed after them
+//   node gate.mjs stop    Stop: asks for the design review and the code review when screens changed after them, unless
+//                         a teammate is still working and the lead is waiting for it
 // Quiet unless design/run.json exists, while it says "paused": true, and once a run marked "step": "done" is over:
-// both reviews newer than its last screen change, or a framing run ("mode": "frame") that wrote no screens. Exit 2 blocks the tool call with a message to Claude; exit 1 reports an
-// internal error and lets the call through. PDH_DEBUG=<folder> appends every hook input to <folder>/hook-inputs.jsonl.
+// both reviews newer than its last screen change, or a framing run ("mode": "frame") that wrote no screens. Exit 2
+// blocks the tool call with a message to Claude; exit 1 reports an internal error and lets the call through.
+// PDH_DEBUG=<folder> appends every hook input to <folder>/hook-inputs.jsonl.
 import fs from 'node:fs'
 import path from 'node:path'
 
-const UI = new Set(['.tsx', '.jsx', '.vue', '.svelte', '.astro', '.html', '.htm', '.css', '.scss', '.sass', '.less', '.mdx', '.swift'])
+// Markup, styles and the scripts that render them; in a design run, all of it is the UI teammate's.
+const UI = new Set(['.tsx', '.jsx', '.ts', '.js', '.mjs', '.cjs', '.vue', '.svelte', '.astro', '.html', '.htm', '.css', '.scss', '.sass', '.less', '.mdx', '.swift'])
 const SKIP = /(^|\/)(node_modules|\.git|dist|build|out|coverage|\.next|\.nuxt|\.svelte-kit)\//
 const NAME = 'Product Design Harness'
 const PLUGIN = 'product-design-harness'
 const OWNED = { 'design/flows.md': 'flows', 'design/copy.md': 'copywriter' }
 const MAX_STOP_BLOCKS = 3
+
+// Who may not start while another teammate is working: each step waits for the ones it reads, a fix round waits for
+// both reviews, and the reviews wait for the build. A teammate counts as working from its start to its stop, for at
+// most an hour.
+const WAITS_FOR = {
+  flows: ['brief'],
+  copywriter: ['brief', 'flows'],
+  'ui-builder': ['brief', 'flows', 'copywriter', 'design-reviewer', 'code-reviewer'],
+  'design-reviewer': ['flows', 'copywriter', 'ui-builder'],
+  'code-reviewer': ['ui-builder'],
+}
+const STALE_MS = 60 * 60 * 1000
+
+// On Opus or Fable, Flows and Copy run on Sonnet, and Code review may (interface-only changes); everyone else runs on
+// the session's model unless the user chose otherwise in run.json "models".
+const SONNET_ON_TOP = new Set(['flows', 'copywriter'])
+const SONNET_ALLOWED = new Set(['flows', 'copywriter', 'code-reviewer'])
+const MODEL_KEYS = { ui: 'ui-builder', build: 'ui-builder', builder: 'ui-builder', copy: 'copywriter', 'design-review': 'design-reviewer', 'code-review': 'code-reviewer' }
 
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'))
@@ -37,11 +61,16 @@ function uiPath(root, filePath) {
   return UI.has(path.extname(rel).toLowerCase()) ? rel : null
 }
 
+// "ui-builder" for "product-design-harness:ui-builder"; null for anything else.
+function ours(type) {
+  return typeof type === 'string' && type.startsWith(`${PLUGIN}:`) ? type.slice(PLUGIN.length + 1) : null
+}
+
 // The teammate a hook fired in: "ui-builder" for "product-design-harness:ui-builder", null in the lead's session.
 function teammate(input) {
   const t = input.agent_type
   if (!t || typeof t !== 'string') return null
-  return t.startsWith(`${PLUGIN}:`) ? t.slice(PLUGIN.length + 1) : t
+  return ours(t) ?? t
 }
 
 function section(text, title) {
@@ -70,6 +99,70 @@ export function hasVerdict(text) {
   return /\bVerdict:\s*\**\s*(pass|fix|decide)\b/i.test(text)
 }
 
+// The model family in a model name or alias: "opus" for "claude-opus-5-5", null when there is none.
+export function family(model) {
+  return String(model ?? '').toLowerCase().match(/fable|opus|sonnet|haiku/)?.[0] ?? null
+}
+
+// Why an Agent call's model breaks the routing, or null when it doesn't. `asked` is the call's model, `session` the
+// lead's, `models` the user's choices from run.json.
+export function modelProblem(who, asked, session, models) {
+  const name = `${PLUGIN}:${who}`
+  const want = asked ? family(asked) ?? String(asked) : null
+  const own = family(session)
+  const choices = {}
+  for (const [key, value] of Object.entries(models && typeof models === 'object' ? models : {})) {
+    choices[MODEL_KEYS[key.toLowerCase()] ?? key.toLowerCase()] = value
+  }
+  const chosen = choices[who] ?? choices.all
+  if (typeof chosen === 'string' && chosen.trim()) {
+    if (/^(inherit|session)$/i.test(chosen.trim())) {
+      if (!want || want === own) return null
+      return `design/run.json has ${who} on the session's model, the user's choice: call ${name} again without "model".`
+    }
+    const pick = family(chosen) ?? chosen.trim()
+    if (want === pick || (!want && own === pick)) return null
+    return `design/run.json has ${who} on "${chosen}", the user's choice: call ${name} again with "model": "${pick}".`
+  }
+  if (!own) return null // the session's model is unknown, so there is nothing to compare with
+  const top = own === 'opus' || own === 'fable'
+  if (top && SONNET_ON_TOP.has(who)) {
+    if (want === 'sonnet') return null
+    return `On ${session}, ${name} runs on Sonnet: call it again with "model": "sonnet".`
+  }
+  if (!want || want === own) return null
+  if (top && want === 'sonnet' && SONNET_ALLOWED.has(who)) return null
+  return (
+    `${name} runs on the session's model (${session}): call it again without "model". ` +
+    'Another model is the user\'s call, written under "models" in design/run.json.'
+  )
+}
+
+// The lead's model, from the last assistant entry of the session's transcript; null when it can't be read.
+function sessionModel(input) {
+  const file = input.transcript_path
+  if (!file || typeof file !== 'string' || !fs.existsSync(file)) return null
+  const size = fs.statSync(file).size
+  const length = Math.min(size, 512 * 1024)
+  const buffer = Buffer.alloc(length)
+  const fd = fs.openSync(file, 'r')
+  try {
+    fs.readSync(fd, buffer, 0, length, size - length)
+  } finally {
+    fs.closeSync(fd)
+  }
+  const lines = buffer.toString('utf8').split('\n')
+  for (let i = lines.length - 1; i >= 0; i--) {
+    if (!lines[i].includes('"assistant"')) continue
+    try {
+      const entry = JSON.parse(lines[i])
+      const model = entry?.message?.model
+      if (entry.type === 'assistant' && typeof model === 'string' && family(model)) return model
+    } catch {}
+  }
+  return null
+}
+
 function statePath(root) {
   return path.join(root, 'design', '.harness', 'state.json')
 }
@@ -85,6 +178,24 @@ function writeState(root, state) {
   const ignore = path.join(dir, '.gitignore')
   if (!fs.existsSync(ignore)) fs.writeFileSync(ignore, '*\n')
   fs.writeFileSync(statePath(root), JSON.stringify(state, null, 2) + '\n')
+}
+
+// The teammates still working, by agent id, without the ones that started over an hour ago.
+function working(state) {
+  const now = Date.now()
+  return Object.fromEntries(
+    Object.entries(state.running ?? {}).filter(([, r]) => r && typeof r.who === 'string' && now - (r.at ?? 0) < STALE_MS)
+  )
+}
+
+// The session's own list of work in flight, when the hook input carries one, replaces what the gates recorded: a
+// teammate's background task has its agent id.
+function resync(state, tasks) {
+  if (!Array.isArray(tasks)) return false
+  const before = JSON.stringify(state.running ?? {})
+  const live = new Set(tasks.map((t) => t?.id).filter((id) => typeof id === 'string'))
+  state.running = Object.fromEntries(Object.entries(working(state)).filter(([id]) => live.has(id)))
+  return JSON.stringify(state.running) !== before
 }
 
 // What still stands between the last screen change and finishing, as short reasons; empty when nothing does.
@@ -166,20 +277,61 @@ function post(root, input) {
   return 0
 }
 
+// A starting teammate counts as working until it stops; its id is kept so a message to it later is known as its.
+function start(root, input) {
+  const who = ours(input.agent_type)
+  if (!who || typeof input.agent_id !== 'string') return 0
+  const state = readState(root)
+  state.running = { ...working(state), [input.agent_id]: { who, at: Date.now() } }
+  state.ids = Object.fromEntries([...Object.entries(state.ids ?? {}), [input.agent_id, who]].slice(-200))
+  writeState(root, state)
+  return 0
+}
+
 function agent(root, input) {
   const who = teammate(input)
   if (!who) return 0
   const state = readState(root)
   state.agents = { ...(state.agents ?? {}), [who]: Date.now() }
+  if (state.running && typeof input.agent_id === 'string') delete state.running[input.agent_id]
+  resync(state, input.background_tasks)
   state.stopBlocks = 0
   writeState(root, state)
   return 0
 }
 
-function stop(root) {
+function spawn(root, input, run) {
   const state = readState(root)
+  const running = working(state)
+  const to = input.tool_input?.to
+  const message = input.tool_name === 'SendMessage'
+  const who = message ? (typeof to === 'string' ? running[to]?.who ?? state.ids?.[to] ?? null : null) : ours(input.tool_input?.subagent_type)
+  if (!who) return 0
+  const waits = WAITS_FOR[who] ?? []
+  const busy = [...new Set(Object.entries(running).filter(([id, r]) => id !== to && waits.includes(r.who)).map(([, r]) => `${PLUGIN}:${r.who}`))]
+  if (busy.length) {
+    return block(
+      `${PLUGIN}:${who} waits for ${busy.join(' and ')}, still working. End your turn now: the completion notice wakes ` +
+        'you. Then read what it wrote and start this step. Polling, messages asking how it goes and placeholder agents only cost time.'
+    )
+  }
+  if (message) return 0
+  const problem = modelProblem(who, input.tool_input?.model, sessionModel(input), run.models)
+  return problem ? block(problem) : 0
+}
+
+// True while the lead is waiting for a teammate: the session reports it in flight, or, on versions that don't report
+// background work, a teammate started and hasn't stopped.
+function waiting(input, state) {
+  if (Array.isArray(input.background_tasks)) return input.background_tasks.some((t) => ours(t?.agent_type))
+  return Object.keys(working(state)).length > 0
+}
+
+function stop(root, input) {
+  const state = readState(root)
+  if (resync(state, input.background_tasks)) writeState(root, state)
   const gaps = reviewGaps(root, state)
-  if (!gaps.length) return 0
+  if (!gaps.length || waiting(input, state)) return 0
   const blocks = state.stopBlocks ?? 0
   // Three reminders in a row with no progress in between, then the lead may stop: the gate asks, it doesn't trap.
   if (blocks >= MAX_STOP_BLOCKS) return 0
@@ -192,18 +344,18 @@ function stop(root) {
       reason:
         `${NAME}: screens changed in this run (${n} file${n === 1 ? '' : 's'}) and the review isn't done: ${gaps.join('; ')}. ` +
         `Delegate to ${PLUGIN}:design-reviewer (the preview, the way to see the page and the spec, nothing about how it ` +
-        `was built) and to ${PLUGIN}:code-reviewer, in parallel; write the design reviewer's report with its verdict to ` +
-        'design/review.md, then finish. If the user asked to stop, set "paused": true in design/run.json.',
+        `was built) and to ${PLUGIN}:code-reviewer, in the same message; write the design reviewer's report with its verdict ` +
+        'to design/review.md, then finish. If the user asked to stop, set "paused": true in design/run.json.',
     }) + '\n'
   )
   return 0
 }
 
-const MODES = { pre, post, agent, stop }
+const MODES = { pre, post, spawn, start, agent, stop }
 
 function main(mode) {
   if (!MODES[mode]) {
-    process.stderr.write('usage: node gate.mjs pre|post|agent|stop  (hook input JSON on stdin)\n')
+    process.stderr.write('usage: node gate.mjs pre|post|spawn|start|agent|stop  (hook input JSON on stdin)\n')
     return 1
   }
   let raw = ''

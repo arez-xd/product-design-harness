@@ -5,7 +5,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
-import { criteriaFilled, hasVerdict, tableFilled } from '../scripts/gate.mjs'
+import { criteriaFilled, family, hasVerdict, modelProblem, tableFilled } from '../scripts/gate.mjs'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const gate = path.join(here, '..', 'scripts', 'gate.mjs')
@@ -38,7 +38,14 @@ function run(mode, root, input) {
 }
 
 const write = (file, agent) => ({ tool_name: 'Write', tool_input: { file_path: file }, ...(agent ? { agent_type: `product-design-harness:${agent}` } : {}) })
-const finished = (agent) => ({ hook_event_name: 'SubagentStop', agent_type: `product-design-harness:${agent}` })
+const finished = (agent, id) => ({ hook_event_name: 'SubagentStop', agent_type: `product-design-harness:${agent}`, ...(id ? { agent_id: id } : {}) })
+const started = (agent, id) => ({ hook_event_name: 'SubagentStart', agent_type: `product-design-harness:${agent}`, agent_id: id })
+const call = (agent, extra = {}) => ({ tool_name: 'Agent', tool_input: { subagent_type: `product-design-harness:${agent}`, description: 'x', prompt: 'x', ...extra } })
+function session(model) {
+  const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'pdh-t-')), 'transcript.jsonl')
+  fs.writeFileSync(file, [{ type: 'user', message: { content: 'go' } }, { type: 'assistant', message: { model, content: [] } }].map((e) => JSON.stringify(e)).join('\n') + '\n')
+  return file
+}
 const verdict = (root) => fs.writeFileSync(path.join(root, 'design/review.md'), '# Design review\n\n**Verdict: fix**\n')
 
 test('quiet without design/run.json', () => {
@@ -91,10 +98,20 @@ test('flows.md and copy.md belong to their teammates', () => {
 
 test('files that are not screens, and files outside the project, pass', () => {
   const root = project({ run: {} })
-  for (const file of ['src/api.ts', 'README.md', 'design/review.md', 'node_modules/x/a.tsx', '../elsewhere/App.tsx']) {
+  for (const file of ['data/invoices.json', 'README.md', 'design/review.md', 'design/.harness/shot.mjs', 'node_modules/x/a.tsx', '../elsewhere/App.tsx']) {
     assert.equal(run('pre', root, write(file)).status, 0, file)
   }
   assert.equal(run('pre', root, { tool_name: 'Write', tool_input: {} }).status, 0)
+})
+
+test('the scripts a page runs on are screen code', () => {
+  const root = project(READY)
+  for (const file of ['scripts/invoices.js', 'src/api.ts', 'lib/format.mjs']) {
+    assert.match(run('pre', root, write(file)).stderr, /written by product-design-harness:ui-builder/, file)
+  }
+  run('post', root, write('scripts/invoices.js', 'ui-builder'))
+  const state = JSON.parse(fs.readFileSync(path.join(root, 'design/.harness/state.json'), 'utf8'))
+  assert.deepEqual(state.touched, ['scripts/invoices.js'])
 })
 
 test('a nested folder that happens to be named design is still screens', () => {
@@ -105,7 +122,7 @@ test('post records each changed screen once', () => {
   const root = project(READY)
   run('post', root, write('src/App.tsx', 'ui-builder'))
   run('post', root, write(path.join(root, 'src/App.tsx'), 'ui-builder'))
-  run('post', root, write('src/api.ts', 'ui-builder'))
+  run('post', root, write('data/invoices.json', 'ui-builder'))
   const state = JSON.parse(fs.readFileSync(path.join(root, 'design/.harness/state.json'), 'utf8'))
   assert.deepEqual(state.touched, ['src/App.tsx'])
   assert.ok(state.lastUiWriteMs > 0)
@@ -164,6 +181,109 @@ test('done before any screen keeps the gates, unless the run was framing only', 
   assert.equal(run('pre', early, write('src/App.tsx')).status, 2)
   const frame = project({ run: { step: 'done', mode: 'frame' } })
   assert.equal(run('pre', frame, write('src/App.tsx')).status, 0)
+})
+
+test('each teammate waits for the step before it; the two reviewers work together', () => {
+  const root = project(READY)
+  run('start', root, started('ui-builder', 'b1'))
+  for (const agent of ['design-reviewer', 'code-reviewer']) {
+    const r = run('spawn', root, call(agent))
+    assert.equal(r.status, 2, agent)
+    assert.match(r.stderr, /waits for product-design-harness:ui-builder, still working\. End your turn/)
+  }
+  run('agent', root, finished('ui-builder', 'b1'))
+  run('start', root, started('design-reviewer', 'd1'))
+  assert.equal(run('spawn', root, call('code-reviewer')).status, 0, 'the reviewers run side by side')
+  run('start', root, started('code-reviewer', 'c1'))
+  assert.match(run('spawn', root, call('ui-builder')).stderr, /waits for product-design-harness:design-reviewer and product-design-harness:code-reviewer/)
+  run('agent', root, finished('design-reviewer', 'd1'))
+  run('agent', root, finished('code-reviewer', 'c1'))
+  assert.equal(run('spawn', root, call('ui-builder')).status, 0, 'the fix round starts once both reviews are in')
+})
+
+test('copy waits for the states, and agents from elsewhere pass', () => {
+  const root = project(READY)
+  run('start', root, started('flows', 'f1'))
+  assert.equal(run('spawn', root, call('copywriter')).status, 2)
+  assert.equal(run('spawn', root, { tool_name: 'Agent', tool_input: { subagent_type: 'Explore', prompt: 'x' } }).status, 0)
+  run('start', root, { hook_event_name: 'SubagentStart', agent_type: 'Explore', agent_id: 'e1' })
+  run('agent', root, finished('flows', 'f1'))
+  assert.equal(run('spawn', root, call('copywriter')).status, 0)
+})
+
+test('a message that resumes the UI teammate waits for the reviews too', () => {
+  const root = project(READY)
+  run('start', root, started('ui-builder', 'b1'))
+  run('agent', root, finished('ui-builder', 'b1'))
+  run('start', root, started('design-reviewer', 'd1'))
+  const resume = { tool_name: 'SendMessage', tool_input: { to: 'b1', message: 'fix the findings' } }
+  assert.equal(run('spawn', root, resume).status, 2)
+  assert.equal(run('spawn', root, { tool_name: 'SendMessage', tool_input: { to: 'd1', message: 'also check 320 px' } }).status, 0, 'a note to the reviewer itself')
+  assert.equal(run('spawn', root, { tool_name: 'SendMessage', tool_input: { to: 'someone', message: 'x' } }).status, 0)
+  run('agent', root, finished('design-reviewer', 'd1'))
+  assert.equal(run('spawn', root, resume).status, 0)
+})
+
+test('a teammate that started over an hour ago no longer holds anyone up', () => {
+  const root = project(READY)
+  fs.mkdirSync(path.join(root, 'design/.harness'), { recursive: true })
+  fs.writeFileSync(path.join(root, 'design/.harness/state.json'), JSON.stringify({ running: { b1: { who: 'ui-builder', at: Date.now() - 61 * 60000 } } }))
+  assert.equal(run('spawn', root, call('design-reviewer')).status, 0)
+})
+
+test('the stop gate lets the lead wait for a teammate still working', () => {
+  const root = project(READY)
+  run('post', root, write('src/App.tsx', 'ui-builder'))
+  const inFlight = { background_tasks: [{ id: 't1', type: 'subagent', status: 'running', description: 'review', agent_type: 'product-design-harness:design-reviewer' }] }
+  for (let i = 0; i < 5; i++) assert.equal(run('stop', root, inFlight).stdout, '', 'waiting is not a reminder')
+  const server = { background_tasks: [{ id: 't2', type: 'shell', status: 'running', description: 'preview', command: 'node serve.mjs' }] }
+  assert.equal(JSON.parse(run('stop', root, server).stdout).decision, 'block', 'a preview server is no teammate')
+  run('start', root, started('code-reviewer', 'c1'))
+  assert.equal(run('stop', root, {}).stdout, '', 'versions without background_tasks fall back to the started teammates')
+  assert.equal(JSON.parse(run('stop', root, { background_tasks: [] }).stdout).decision, 'block', 'the session\'s own report wins')
+})
+
+test('the session\'s list of work in flight clears a teammate whose stop went unrecorded', () => {
+  const root = project(READY)
+  run('start', root, started('ui-builder', 'b1'))
+  run('start', root, started('flows', 'f1'))
+  run('agent', root, { ...finished('flows', 'f1'), background_tasks: [{ id: 'f1', type: 'subagent', status: 'running', agent_type: 'product-design-harness:flows' }] })
+  assert.equal(run('spawn', root, call('design-reviewer')).status, 0, 'b1 is no longer in flight')
+  run('start', root, started('ui-builder', 'b2'))
+  run('stop', root, { background_tasks: [{ id: 'b2', type: 'subagent', status: 'running', agent_type: 'product-design-harness:ui-builder' }] })
+  assert.equal(run('spawn', root, call('design-reviewer')).status, 2, 'b2 still is')
+  run('stop', root, { background_tasks: [] })
+  assert.equal(run('spawn', root, call('design-reviewer')).status, 0)
+})
+
+test('teammates run on the session model, Flows and Copy on Sonnet under Opus or Fable', () => {
+  const root = project(READY)
+  const on = (model, agent, extra) => run('spawn', root, { ...call(agent, extra), transcript_path: session(model) })
+  assert.equal(on('claude-opus-5-5', 'flows', { model: 'sonnet' }).status, 0)
+  assert.match(on('claude-opus-5-5', 'copywriter').stderr, /runs on Sonnet: call it again with "model": "sonnet"/)
+  assert.equal(on('claude-fable-5-1', 'ui-builder').status, 0)
+  assert.equal(on('claude-opus-5-5', 'code-reviewer', { model: 'sonnet' }).status, 0, 'an interface-only code review')
+  assert.equal(on('claude-opus-5-5', 'code-reviewer').status, 0, 'a code review of server code')
+  assert.match(on('claude-opus-5-5', 'ui-builder', { model: 'sonnet' }).stderr, /without "model"/)
+  assert.match(on('claude-haiku-5-5', 'ui-builder', { model: 'sonnet' }).stderr, /runs on the session's model \(claude-haiku-5-5\)/)
+  assert.equal(on('claude-haiku-5-5', 'design-reviewer', { model: 'opus' }).status, 2, 'never above the session unasked')
+  assert.equal(on('claude-sonnet-5-5', 'flows').status, 0)
+  assert.equal(on('claude-sonnet-5-5', 'flows', { model: 'sonnet' }).status, 0, 'the same model, named')
+  assert.equal(run('spawn', root, call('design-reviewer', { model: 'opus' })).status, 0, 'no transcript: nothing to compare with')
+})
+
+test('the user\'s models in run.json win', () => {
+  const root = project({ ...READY, run: { ...READY.run, models: { ui: 'opus', 'Design-review': 'claude-opus-5-5', all: 'sonnet' } } })
+  const on = (agent, extra) => run('spawn', root, { ...call(agent, extra), transcript_path: session('claude-sonnet-5-5') })
+  assert.equal(on('ui-builder', { model: 'opus' }).status, 0)
+  assert.match(on('ui-builder').stderr, /has ui-builder on "opus", the user's choice: call .* with "model": "opus"/)
+  assert.equal(on('design-reviewer', { model: 'opus' }).status, 0)
+  assert.equal(on('flows').status, 0, '"all": "sonnet" on a Sonnet session needs no model')
+  assert.equal(on('flows', { model: 'haiku' }).status, 2)
+  assert.equal(modelProblem('flows', undefined, 'claude-opus-5-5', { flows: 'inherit' }), null, 'inherit keeps the session model')
+  assert.match(modelProblem('flows', 'sonnet', 'claude-opus-5-5', { flows: 'inherit' }), /without "model"/)
+  assert.equal(family('claude-opus-5-5[1m]'), 'opus')
+  assert.equal(family('gpt-5'), null)
 })
 
 test('the lead finishing a subagent-less turn records nothing', () => {

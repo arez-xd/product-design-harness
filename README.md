@@ -69,7 +69,7 @@ The lead takes the mode from your request (a new screen or feature runs the full
 
 ## Models
 
-Every teammate runs on your session's model unless the plan says otherwise. On Opus, flows, copy and a code review of interface-only changes run on Sonnet, where Opus adds little; a code review that touches server code, data writes, money or permissions stays on Opus. Any of it can be set per teammate in `design/run.json` under `models`. If `CLAUDE_CODE_SUBAGENT_MODEL` is set in your environment, check that it doesn't override the plan: before Claude Code 2.1.251 it took precedence over everything.
+Every teammate runs on your session's model unless the plan says otherwise. On Opus or Fable, flows, copy and a code review of interface-only changes run on Sonnet, where the stronger model adds little; a code review that touches server code, data writes, money or permissions stays on your model. Any of it can be set per teammate in `design/run.json` under `models`. A hook holds the lead to this: no teammate runs above your model unless you asked for it. If `CLAUDE_CODE_SUBAGENT_MODEL` is set in your environment, check that it doesn't override the plan: before Claude Code 2.1.251 it took precedence over everything.
 
 ## From a brief alone
 
@@ -103,8 +103,10 @@ With no screens and no design system in the project, the run starts further back
 ## Gates
 
 - **No screen before the brief, the states and the copy.** Writing a screen file is blocked until `design/brief.md` has success criteria you approved and `design/flows.md` and `design/copy.md` are filled.
-- **The team does the work.** Only the UI teammate writes screen files; `flows.md` and `copy.md` belong to their teammates.
-- **No finish without the reviews.** While screens changed after the last design review, code review and verdict in `design/review.md`, the lead is asked to run them before it finishes.
+- **The team does the work.** Only the UI teammate writes screen files (markup, styles and the scripts the page runs on); `flows.md` and `copy.md` belong to their teammates.
+- **One step at a time.** A teammate starts once the steps it reads have returned: flows, then copy, then the build, then both reviews side by side, then the fixes. Teammates work in the background; the lead ends its turn and the completion notice wakes it.
+- **Models by the plan.** An Agent call can set only the model the plan gives the teammate.
+- **No finish without the reviews.** While screens changed after the last design review, code review and verdict in `design/review.md`, the lead is asked to run them before it finishes. Waiting for a teammate still at work is always allowed.
 
 The gates stay quiet without `design/run.json`, while the run is paused, and once a finished run's reviews are fresh.
 
