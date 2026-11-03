@@ -8,6 +8,7 @@
   "preview": {
     "url": null,
     "start": null,
+    "render": null,
     "states": {}
   },
   "figma": {
@@ -15,5 +16,6 @@
     "calls": 0,
     "budget": 4
   },
-  "reviewRounds": 0
+  "reviewRounds": 0,
+  "mode": "full"
 }

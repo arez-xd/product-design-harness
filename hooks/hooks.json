@@ -1,5 +1,5 @@
 {
-  "description": "Product Design Harness gates: no screen before the brief is approved, and a design review before finishing when screens changed. Quiet unless design/run.json exists.",
+  "description": "Product Design Harness gates: screens wait for the brief, the flows and the copy, and only the UI teammate writes them; finishing waits for the design review and the code review. Quiet unless design/run.json exists.",
   "hooks": {
     "PreToolUse": [
       {
@@ -20,6 +20,17 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/gate.mjs\" post",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/gate.mjs\" agent",
             "timeout": 10
           }
         ]

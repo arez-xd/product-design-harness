@@ -20,11 +20,11 @@ A product design team for Claude Code. One request takes a brief, or a Figma fra
 ## Use
 
 ```text
-/design Design the invoices list for accountants who go through hundreds of invoices a day.
+/product-design Design the invoices list for accountants who go through hundreds of invoices a day.
 ```
 
 ```text
-/design https://www.figma.com/design/… Build this frame in our app, with every state.
+/product-design https://www.figma.com/design/… Build this frame in our app, with every state.
 ```
 
 ```text
@@ -53,7 +53,7 @@ A product design team for Claude Code. One request takes a brief, or a Figma fra
 6. **Review.** The design reviewer gets the preview and the spec, never the builder's notes: every state, copy against the glossary, values the design system doesn't have, accessibility checked by hand, the markers of generated-looking UI, prototype honesty, deceptive patterns. Two rounds of fixes at most.
 7. **Hand off.** What is final, the design-system changes, the UX debt and a usability test plan.
 
-`/design frame`, `build`, `review`, `feedback` (crit notes or test findings into changes) and `handoff` run one part.
+`/product-design frame`, `build`, `review`, `feedback` (crit notes or test findings into changes) and `handoff` run one part.
 
 ## What lands in your project
 
@@ -71,10 +71,11 @@ A product design team for Claude Code. One request takes a brief, or a Figma fra
 
 ## Gates
 
-- **No screen before the brief.** Writing a screen file is blocked until `design/brief.md` has success criteria and you have approved them.
-- **No finish without a review.** When screens changed after the last `design/review.md`, the lead is asked for a design review before it finishes.
+- **No screen before the brief, the states and the copy.** Writing a screen file is blocked until `design/brief.md` has success criteria you approved and `design/flows.md` and `design/copy.md` are filled.
+- **The team does the work.** Only the UI teammate writes screen files; `flows.md` and `copy.md` belong to their teammates.
+- **No finish without the reviews.** While screens changed after the last design review, code review and verdict in `design/review.md`, the lead is asked to run them before it finishes.
 
-Both stay quiet without `design/run.json`, and while the run is paused or done.
+The gates stay quiet without `design/run.json`, while the run is paused, and once a finished run's reviews are fresh.
 
 ## Figma
 

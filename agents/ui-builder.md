@@ -23,8 +23,9 @@ You build the screens. Before you start, make sure the Design Taste skill is loa
 - **Responsive.** Check 320, 768 and 1280 CSS pixels wide.
 - **Honest prototype.** Controls that do nothing yet are disabled or labelled, sample data is marked, and nothing invents proof (testimonials, logos, user counts, ratings).
 - **Scope.** Touch the files this work needs and nothing else.
+- **Belongs to the product.** Open the product's existing screens first and match their page header, spacing, type sizes, components and tone; the new screen should look like it was always there. Hierarchy follows the job: what needs action is what the eye finds first, and one action per view is primary.
 
-Before you hand back, look at each state rendered if a browser tool is available, and run Design Taste's slop scan on the main screen.
+Before you hand back, render every state with the way to see the page from your task message (`preview.render` in `design/run.json`), look at each screenshot at the brief's viewport, fix what looks unfinished, and run Design Taste's slop scan on the main screen. When a command is refused, use another allowed route; install nothing.
 
 ## Preview
 
