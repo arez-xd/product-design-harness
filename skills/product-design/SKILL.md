@@ -81,7 +81,12 @@ Set `step` in `run.json` as you enter each step.
 
 ## Corrections become rules
 
-When the user corrects the work ("use the design system's button here"), make the fix through the teammate that owns it, then offer to keep it: "Keep this as a rule for the project?" On a yes, or straight away when the same correction comes a second time, add it to `rules.md` with the reason, the date and the run it came from. A correction given twice is a gap in the harness's knowledge of this project, and `rules.md` is where that knowledge lives. If the rule can be checked on the page or in the code (a component that must be used, a value that must never appear), say how in the rule, so the reviewers check it.
+When the user corrects the work, make the fix through the teammate that owns it, then sort the correction:
+
+- **A rule** holds on any screen of this product ("buttons come from the design system", "amounts keep their own currency"). Offer to keep it: "Keep this as a rule for the project?" On a yes, or straight away when the same correction comes a second time, add it to `rules.md` with the reason, the date and the run it came from. If it can be checked on the page or in the code, say how, so the reviewers check it.
+- **A decision** is a judgment about this screen or this moment ("this background doesn't fit here", "move the filter to the left"). Record it in `decisions.md` as a numbered decision with its reason, and keep it out of `rules.md`, so the rules stay few and true everywhere.
+
+When it isn't clear which one it is, ask in one line: "Only here, or everywhere in the product?"
 
 ## Laws
 
@@ -117,7 +122,7 @@ Everything read is cached in `design/figma/` (the context as Markdown, variables
 - **review**: step 6 on screens that already exist. Without a brief, write a short one from the request, mark it as assumed and show it to the user with the review.
 - **feedback**: the user pastes crit notes or test findings. Turn each note into a row in `decisions.md`: the screen and state, what changes, the principle, rule or criterion it touches, and whether it needs the user. Then run steps 5 and 6 for the agreed rows. A test finding keeps who failed which task.
 - **handoff**: step 7. If the Figma MCP server can capture a web page into a file, offer to put the reviewed screens into Figma for a crit, and do it only after the user agrees.
-- **capture**: the user states a rule ("buttons come from the DS, never custom"). Add it to `rules.md` with its reason, the date and where it came from, and tell the user which teammates will apply and check it.
+- **capture**: the user states a rule ("buttons come from the design system"). Add it to `rules.md` with its reason, the date and where it came from, and tell the user which teammates will apply and check it. A judgment about one screen goes to `decisions.md` instead, as above.
 
 ## Pause and resume
 

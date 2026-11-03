@@ -78,7 +78,7 @@ With no screens and no design system in the project, the run starts further back
 ## Steering it
 
 - **Sources.** Name what to work from in the request or at any point: MCP servers and what they are for, references, constraints. They go into `design/sources.md`, which every teammate reads; a source added mid-run sends the steps it touches back through the team.
-- **Rules.** Correct something and the lead offers to keep it as a rule; the same correction twice becomes one. Rules live in `design/rules.md`, hold over defaults, and are checked by the reviewers where they say how.
+- **Rules.** Correct something and the lead sorts it: what holds on any screen of the product becomes a rule (offered the first time, kept the second), and a judgment about one screen becomes a numbered decision. Rules live in `design/rules.md`, hold over defaults, and are checked by the reviewers where they say how.
 - **Decisions.** Every decision is numbered, with its reason, the options turned down and what was learned. A change that would undo one comes to you with its number.
 
 ## What lands in your project

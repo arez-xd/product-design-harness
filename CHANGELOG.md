@@ -3,7 +3,7 @@
 ## 0.3.0 (unreleased)
 
 - **What the project keeps.** `design/rules.md` (standing rules), `design/sources.md` (MCP servers, references, constraints) and numbered decisions in `design/decisions.md` (reason, options turned down, lessons) outlive a run, with `system.md`; a finished run's other files move to `design/history/` when the next one starts.
-- **Corrections become rules.** The lead offers to keep a correction as a rule, keeps a repeated one, and `capture` adds one directly. The reviewers check every rule that says how, and flag a screen that undoes a decision.
+- **Corrections become rules or decisions.** A correction that holds on any screen of the product becomes a rule in `rules.md` (offered the first time, kept when it repeats, or added with `capture`); a judgment about one screen becomes a numbered decision. The reviewers check every rule that says how, and flag a screen that undoes a decision.
 - **From a brief alone.** Research with sources and dates (web, reference libraries over MCP, the user's links), visual directions to choose from, and foundations (tokens and core components) laid before any screen.
 - **Steering.** Sources named in the request or mid-run reach every teammate, and a new one sends the steps it touches back through the team.
 - **The plan in one line.** The lead takes the mode from the request, says the plan with the models and the expected time, and starts; the user steers in words at any point. It asks first only when the request could be a small change or a new feature, or when the run is unusually large.
