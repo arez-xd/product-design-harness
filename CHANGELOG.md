@@ -8,7 +8,8 @@
 - **Steering.** Sources named in the request or mid-run reach every teammate, and a new one sends the steps it touches back through the team.
 - **The plan in one line.** The lead takes the mode from the request, says the plan with the models and the expected time, and starts; the user steers in words at any point. It asks first only when the request could be a small change or a new feature, or when the run is unusually large.
 - **Models by role.** On Opus, flows, copy and interface-only code review run on Sonnet; the brief, the build and the design review stay on the session's model. `models` in `run.json` sets any of it.
-- **Quick changes.** `quick` builds a small change to a screen that exists and reviews what it touched, once; the screen waits only for its short brief, and the review gate still applies.
+- **Quick changes.** `quick` builds a small change to a screen that exists and reviews what it touched, once; the screen waits only for its short brief, and the review gate still applies. It runs only when the user asks for the harness by name; a small change the lead picked the skill up for on its own is made as an ordinary edit.
+- **The design memory reaches ordinary sessions.** After the first run, the lead offers a pointer in the project's CLAUDE.md to the rules, decisions, design system and glossary.
 - **After the second blind test:** the reviewers render the many-items and long-content states with data of that size; the screen keeps the model screen's primary action; rows stay calm, with secondary details in a quieter line and repeated actions as icons or one menu; Figma frames are compared with the render in values.
 
 ## 0.2.0 (unreleased)
