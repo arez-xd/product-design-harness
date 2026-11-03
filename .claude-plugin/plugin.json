@@ -1,7 +1,7 @@
 {
   "name": "product-design-harness",
-  "version": "0.2.0",
-  "description": "A product design team for Claude Code: agrees success criteria before the first screen, puts key decisions to you as options, works from your design system or Figma, designs every state, writes the copy, reviews the rendered page blind with measurements and hands off what is final.",
+  "version": "0.3.0",
+  "description": "A product design team for Claude Code: agrees success criteria before the first screen, researches the problem, puts key decisions to you as options, works from your design system or Figma or lays one down from a brief, designs every state, writes the copy, reviews the rendered page blind with measurements, and keeps the project's rules and decisions between runs.",
   "author": {
     "name": "Adam Reznik",
     "url": "https://github.com/arez-xd"

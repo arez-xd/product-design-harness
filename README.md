@@ -2,7 +2,7 @@
 
 A product design team for Claude Code. One request takes a brief, or a Figma frame, to screens in code that were reviewed on the rendered page.
 
-> **Status: 0.1.0, a skeleton.** The team, the files and the gates are in place; the blind test that will say what it changes comes before 1.0.
+> **Status: 0.3.0.** The team, the files and the gates are in place, and two quick blind tests have run on a fictional product; the full test that will say what it changes comes before 1.0.
 
 ## Install
 
@@ -28,7 +28,15 @@ A product design team for Claude Code. One request takes a brief, or a Figma fra
 ```
 
 ```text
+/product-design A booking app for small yoga studios: the class schedule and sign-up. Use Mobbin for references.
+```
+
+```text
 /design-review http://localhost:3000/settings
+```
+
+```text
+/product-design capture Buttons come from the design system, never custom ones.
 ```
 
 ## The team
@@ -36,10 +44,10 @@ A product design team for Claude Code. One request takes a brief, or a Figma fra
 | Teammate | What it does |
 |---|---|
 | Lead (your session) | Plans the run, talks to you, keeps `design/` current |
-| Brief | The problem, who uses it and how often, success criteria, principles, the design system, options for the decisions that shape the work |
+| Brief | The problem and its research, who uses it and how often, success criteria, principles, the design system, options for the decisions that shape the work |
 | Flows | Each task as a flow, the screens, every state of every screen |
 | Copy | The copy deck and the glossary |
-| UI | The screens in code, every state reachable in a preview |
+| UI | The foundations when there are none, then the screens in code, every state reachable in a preview |
 | Design review | The rendered page, blind to how it was built, with measurements |
 | Code review | The code of the run, with What Breaks in AI Code |
 
@@ -55,12 +63,22 @@ A product design team for Claude Code. One request takes a brief, or a Figma fra
 
 `/product-design frame`, `build`, `review`, `feedback` (crit notes or test findings into changes) and `handoff` run one part.
 
+## From a brief alone
+
+With no screens and no design system in the project, the run starts further back: the Brief teammate researches the problem with the sources and tools at hand (web search, a reference library over MCP, the links you give), with a source and a date for every finding and assumptions marked for the test plan. Step 2 brings two or three visual directions to choose from, and the UI teammate lays the foundations of the one you pick (tokens and core components) before any screen.
+
+## Steering it
+
+- **Sources.** Name what to work from in the request or at any point: MCP servers and what they are for, references, constraints. They go into `design/sources.md`, which every teammate reads; a source added mid-run sends the steps it touches back through the team.
+- **Rules.** Correct something and the lead offers to keep it as a rule; the same correction twice becomes one. Rules live in `design/rules.md`, hold over defaults, and are checked by the reviewers where they say how.
+- **Decisions.** Every decision is numbered, with its reason, the options turned down and what was learned. A change that would undo one comes to you with its number.
+
 ## What lands in your project
 
 | File | Holds |
 |---|---|
 | `design/brief.md` | Problem, users, constraints, terms, success criteria, principles |
-| `design/decisions.md` | Options, decisions with reasons and who decided, pushbacks, feedback |
+| `design/decisions.md` | Numbered decisions with reasons, options turned down and lessons; pushbacks; feedback |
 | `design/system.md` | Tokens and components the screens are built from, and the gaps |
 | `design/flows.md` | Tasks, screens and every state |
 | `design/copy.md` | Glossary and strings |
@@ -68,6 +86,11 @@ A product design team for Claude Code. One request takes a brief, or a Figma fra
 | `design/handoff.md` | What is final, the design-system change record, the UX debt |
 | `design/test-plan.md` | Tasks, participants and findings by who failed which task |
 | `design/run.json` | Where the run is |
+| `design/rules.md` | The project's standing rules, kept between runs |
+| `design/sources.md` | MCP servers, references and constraints to work from, kept between runs |
+| `design/history/` | Finished runs' files, moved there when the next run starts |
+
+`rules.md`, `sources.md`, `decisions.md` and `system.md` outlive a run; the rest belongs to one.
 
 ## Gates
 

@@ -30,6 +30,12 @@ What the screens are built from, read from the repository and, when given, from 
 
 - <pattern and where it lives>
 
+## Foundations laid in a run
+
+When the product had no design system, the direction chosen in `decisions.md` and what the UI teammate laid down for it: the token file, the components, and what is still missing.
+
+- <direction, decision number, token file, components>
+
 ## Gaps
 
 | Needed for | Missing | Proposed | Decided |

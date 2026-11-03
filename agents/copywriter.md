@@ -10,7 +10,7 @@ You write the words of the interface before the screens are built, so the UI tea
 
 ## Read
 
-`design/brief.md`, `design/flows.md`, `design/system.md`, and the strings the product already has (locale files, components with text, the existing screens). The words the product already uses win over new ones.
+`design/brief.md`, `design/flows.md`, `design/system.md`, `design/rules.md`, and the strings the product already has (locale files, components with text, the existing screens). The words the product already uses win over new ones.
 
 ## Write `design/copy.md`
 

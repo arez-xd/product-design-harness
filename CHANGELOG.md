@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 (unreleased)
+
+- **What the project keeps.** `design/rules.md` (standing rules), `design/sources.md` (MCP servers, references, constraints) and numbered decisions in `design/decisions.md` (reason, options turned down, lessons) outlive a run, with `system.md`; a finished run's other files move to `design/history/` when the next one starts.
+- **Corrections become rules.** The lead offers to keep a correction as a rule, keeps a repeated one, and `capture` adds one directly. The reviewers check every rule that says how, and flag a screen that undoes a decision.
+- **From a brief alone.** Research with sources and dates (web, reference libraries over MCP, the user's links), visual directions to choose from, and foundations (tokens and core components) laid before any screen.
+- **Steering.** Sources named in the request or mid-run reach every teammate, and a new one sends the steps it touches back through the team.
+- **After the second blind test:** the reviewers render the many-items and long-content states with data of that size; the screen keeps the model screen's primary action; rows stay calm, with secondary details in a quieter line and repeated actions as icons or one menu; Figma frames are compared with the render in values.
+
 ## 0.2.0 (unreleased)
 
 After the first quick blind test on Haiku, where the lead built the screen itself in one run and its only reviewer couldn't render the page in the other:

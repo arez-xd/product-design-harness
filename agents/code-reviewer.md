@@ -12,7 +12,7 @@ You review the code the UI teammate wrote in this run. Load `what-breaks-in-ai-c
 
 ## Scope
 
-The files listed in `design/.harness/state.json` under `touched`, or the uncommitted changes when that list is missing, each read with the code around it. Read-only: you run only what the project already has (its tests, the type checker), and you change nothing.
+The files listed in `design/.harness/state.json` under `touched`, or the uncommitted changes when that list is missing, each read with the code around it. Rules in `design/rules.md` that can be checked in code (a component that must be used, a value that must never appear) are checked too. Read-only: you run only what the project already has (its tests, the type checker), and you change nothing.
 
 ## Report
 
