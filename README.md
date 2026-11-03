@@ -41,15 +41,7 @@ A product design team for Claude Code. One request takes a brief, or a Figma fra
 
 ## Before it starts
 
-The lead asks three questions, each answer with a line on what it means, unless your request already settles them:
-
-| Question | Options |
-|---|---|
-| Mode | Full path (a new screen, flow or feature) · Quick change (one state, a string or a fix on a screen that exists) · Brief and decisions only · Review only |
-| Models | On Opus: Opus where quality shows (brief, build, design review) and Sonnet for flows, copy and interface-only code review · Opus for everyone · Sonnet for everyone. On Sonnet: Sonnet for everyone · Opus for build and design review |
-| Checkpoints | Ask me at the brief and the options · Decide yourself, show me at the end |
-
-In a headless run, it takes what the request says and the recommended answers, says the plan and starts. As a guide from runs on Sonnet, the full path for one screen took 15 to 30 minutes and cost ten or more times a single prompt.
+The lead takes the mode from your request (a new screen or feature runs the full path; a small change to a screen that exists runs `quick`), says the plan in one line with the models and roughly how long it takes, and starts. Steer it in words at any point: "quick", "only the brief", "build on Opus", "everything on Sonnet", "decide yourself and show me at the end". It asks first only when the request could be either a small change or a new feature, or when the run is unusually large. As a guide from runs on Sonnet, the full path for one screen took 15 to 30 minutes and cost ten or more times a single prompt.
 
 ## The team
 
