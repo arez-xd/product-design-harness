@@ -354,6 +354,8 @@ test('the templates read as empty', () => {
   assert.equal(tableFilled(tpl('flows.md'), 'States'), false)
   assert.equal(tableFilled(FLOWS, 'States'), true)
   assert.equal(tableFilled(tpl('copy.md'), 'Strings'), false)
+  assert.equal(tableFilled(COPY.replace('## Strings', '## 3. Strings'), 'Strings'), true, 'a numbered heading counts')
+  assert.equal(criteriaFilled(FILLED.replace('## Success criteria', '## 4) Success criteria')), true)
   assert.equal(hasVerdict(tpl('review.md')), false)
   assert.equal(hasVerdict('**Verdict: decide**'), true)
 })

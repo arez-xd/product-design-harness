@@ -73,8 +73,9 @@ function teammate(input) {
   return ours(t) ?? t
 }
 
+// A "## " section by its title, numbered or not ("## Strings", "## 3. Strings").
 function section(text, title) {
-  return text.split(/^## /m).find((s) => new RegExp(`^${title}\\b`, 'i').test(s)) ?? ''
+  return text.split(/^## /m).find((s) => new RegExp(`^(?:\\d+[.)]\\s*)?${title}\\b`, 'i').test(s)) ?? ''
 }
 
 // True when the "Success criteria" (or "Success criterion") section of brief.md has a line that isn't the template
