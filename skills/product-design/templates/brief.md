@@ -23,6 +23,14 @@ Written by the Brief teammate. The lead shows the success criteria and the princ
 
 <criteria the brief implies without naming them>
 
+## The data
+
+<!-- One row per field the screens show, and per pair of fields that act on each other: what it means to the person, and what the screen does with it. -->
+
+| Field or pair | What it means to the person | What the screen does |
+|---|---|---|
+| <field> | <meaning> | <state, number or action> |
+
 ## Success criteria
 
 <!-- One line each: goal → signal → how it would be measured. Screens can't be written while only the placeholder is here. -->
