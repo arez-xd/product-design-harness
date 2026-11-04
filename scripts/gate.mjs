@@ -101,6 +101,11 @@ export function hasVerdict(text) {
   return /\bVerdict:\s*\**\s*(pass|fix|decide)\b/i.test(text)
 }
 
+// The code verdict review.md gives: "ship" (no Blocker or Major) or "fix"; null when it gives none.
+export function codeVerdict(text) {
+  return text.match(/\bCode verdict:\s*\**\s*(ship|fix)\b/i)?.[1]?.toLowerCase() ?? null
+}
+
 // The model family in a model name or alias: "opus" for "claude-opus-5-5", null when there is none.
 export function family(model) {
   return String(model ?? '').toLowerCase().match(/fable|opus|sonnet|haiku/)?.[0] ?? null
@@ -204,11 +209,16 @@ function resync(state, tasks) {
 export function reviewGaps(root, state) {
   if (!state.lastUiWriteMs) return []
   const after = (name) => (state.agents?.[name] ?? 0) > state.lastUiWriteMs
+  const review = path.join(root, 'design', 'review.md')
+  const text = fs.existsSync(review) ? fs.readFileSync(review, 'utf8') : ''
   const gaps = []
   if (!after('design-reviewer')) gaps.push(`${PLUGIN}:design-reviewer hasn't reviewed the screens since they last changed`)
-  if (!after('code-reviewer')) gaps.push(`${PLUGIN}:code-reviewer hasn't reviewed the code since it last changed`)
-  const review = path.join(root, 'design', 'review.md')
-  const fresh = fs.existsSync(review) && fs.statSync(review).mtimeMs + 1000 > state.lastUiWriteMs && hasVerdict(fs.readFileSync(review, 'utf8'))
+  // A code review whose verdict was ship holds through interface fixes; one that found a Blocker or a Major is repeated.
+  const codeInRun = (state.agents?.['code-reviewer'] ?? 0) > (state.firstUiWriteMs ?? Infinity)
+  if (!after('code-reviewer') && !(codeInRun && codeVerdict(text) === 'ship')) {
+    gaps.push(`${PLUGIN}:code-reviewer hasn't reviewed the code since it last changed, and design/review.md gives no code verdict of ship from a code review in this run`)
+  }
+  const fresh = text && fs.statSync(review).mtimeMs + 1000 > state.lastUiWriteMs && hasVerdict(text)
   if (!fresh) gaps.push('design/review.md has no verdict written after the last screen change')
   return gaps
 }
@@ -268,10 +278,17 @@ function pre(root, input, run) {
   return 0
 }
 
-function post(root, input) {
+function post(root, input, run) {
   const rel = uiPath(root, input.tool_input?.file_path)
   if (!rel) return 0
   const state = readState(root)
+  // A new run (another request in run.json) starts its own record of screens and of when they were first written.
+  const request = run?.request ?? null
+  if (!state.firstUiWriteMs || state.runRequest !== request) {
+    state.firstUiWriteMs = Date.now()
+    state.runRequest = request
+    state.touched = []
+  }
   const touched = new Set(Array.isArray(state.touched) ? state.touched : [])
   touched.add(rel)
   state.touched = [...touched].slice(-500)
@@ -349,8 +366,8 @@ function stop(root, input) {
       reason:
         `${NAME}: screens changed in this run (${n} file${n === 1 ? '' : 's'}) and the review isn't done: ${gaps.join('; ')}. ` +
         `Delegate to ${PLUGIN}:design-reviewer (the preview, the way to see the page and the spec, nothing about how it ` +
-        `was built) and to ${PLUGIN}:code-reviewer, in the same message; write the design reviewer's report with its verdict ` +
-        'to design/review.md, then finish. If the user asked to stop, set "paused": true in design/run.json.',
+        `was built)${gaps.some((g) => g.includes('code-reviewer')) ? ` and to ${PLUGIN}:code-reviewer, in the same message` : ''}; write ` +
+        'the report with its verdict, and the code verdict, to design/review.md, then finish. If the user asked to stop, set "paused": true in design/run.json.',
     }) + '\n'
   )
   return 0

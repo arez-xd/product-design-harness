@@ -5,7 +5,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
-import { criteriaFilled, family, hasVerdict, modelProblem, tableFilled } from '../scripts/gate.mjs'
+import { codeVerdict, criteriaFilled, family, hasVerdict, modelProblem, tableFilled } from '../scripts/gate.mjs'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const gate = path.join(here, '..', 'scripts', 'gate.mjs')
@@ -141,6 +141,39 @@ test('stop waits for both reviewers and a fresh verdict after the last screen ch
   assert.doesNotMatch(r.reason, /design-reviewer hasn't/)
   run('agent', root, finished('code-reviewer'))
   assert.equal(run('stop', root, {}).stdout, '')
+})
+
+test('a code verdict of ship from this run carries through interface fixes; fix asks for the code review again', async () => {
+  const pause = () => new Promise((r) => setTimeout(r, 20))
+  for (const [code, blocked] of [['ship', false], ['fix', true]]) {
+    const root = project(READY)
+    run('post', root, write('src/App.tsx', 'ui-builder'))
+    await pause()
+    run('agent', root, finished('code-reviewer'))
+    run('agent', root, finished('design-reviewer'))
+    fs.writeFileSync(path.join(root, 'design/review.md'), `# Design review\n\n**Verdict: fix**\n\n## Code review\n\n**Code verdict: ${code}**\n`)
+    await pause()
+    run('post', root, write('src/App.tsx', 'ui-builder'))
+    await pause()
+    run('agent', root, finished('design-reviewer'))
+    fs.writeFileSync(path.join(root, 'design/review.md'), `# Design review\n\n**Verdict: pass**\n\n## Code review\n\n**Code verdict: ${code}**\n`)
+    const r = run('stop', root, {}).stdout
+    if (blocked) assert.match(JSON.parse(r).reason, /code-reviewer hasn't reviewed the code/, code)
+    else assert.equal(r, '', code)
+  }
+})
+
+test('a ship verdict with no code review in this run doesn\'t count', async () => {
+  const root = project(READY)
+  run('agent', root, finished('code-reviewer'))
+  await new Promise((r) => setTimeout(r, 20))
+  run('post', root, write('src/App.tsx', 'ui-builder'))
+  await new Promise((r) => setTimeout(r, 20))
+  run('agent', root, finished('design-reviewer'))
+  fs.writeFileSync(path.join(root, 'design/review.md'), '**Verdict: pass**\n\n**Code verdict: ship**\n')
+  assert.match(JSON.parse(run('stop', root, {}).stdout).reason, /code-reviewer/)
+  assert.equal(codeVerdict('**Code verdict: <ship or fix>**'), null, 'the template reads as no verdict')
+  assert.equal(codeVerdict('Code verdict: **Ship**'), 'ship')
 })
 
 test('a review of an older version of the screens doesn\'t count', async () => {

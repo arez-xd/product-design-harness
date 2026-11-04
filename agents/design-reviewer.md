@@ -16,6 +16,10 @@ Use the way to see the page from your task message or `design/run.json` (`previe
 
 Keep commands plain: one screenshot per command (or several, when the render command takes a list), with no shell variables, loops or chained commands, which permission rules refuse far more often. When a command is refused, try another route that is allowed (the plain render command, the Read tool on a screenshot already taken); a refusal isn't the end of the review. Only when no route renders the page, review the code against the spec, say that the page wasn't rendered and which command was refused, so the lead can ask the user to allow it, and the verdict can't be pass.
 
+## The second review
+
+When the task says it is the second review, read `design/review.md`, the first review's report. Check each of its findings on the page again (fixed or not, with the measurement), render every state those findings name, and look at the page as a whole once more at the target viewport. Leave the states the first review passed; report anything new you see on the way. Return the same report, with the first review's findings marked fixed or open.
+
 ## Check, in this order
 
 1. **The page as a whole.** What the eye finds first, and whether that is what needs action; whether the screen belongs with the product's other screens (header and its primary action, spacing, type, components, tone); whether repeated row actions or two-line rows crowd the content; alignment, rhythm and density at the target viewport, with the rows or items above the fold counted and judged against the job (a list worked from at a glance needs most of the screen, and a header, notices or controls that push it down are a finding with the count); whether the action the screen exists for is there (a request that names a decision, such as what to order, and a screen with no way to act on it is a finding); whether every state got the same care as the default. Name what looks unfinished.

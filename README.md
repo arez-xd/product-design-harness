@@ -62,7 +62,7 @@ The lead takes the mode from your request (a new screen or feature runs the full
 3. **Flows and states.**
 4. **Copy.**
 5. **Build.**
-6. **Review.** The design reviewer gets the preview and the spec, never the builder's notes: every state, copy against the glossary, values the design system doesn't have, accessibility checked by hand, the markers of generated-looking UI, prototype honesty (with the job's action built up to the step the demo can't take), deceptive patterns. Two reviews at most: what the second leaves goes to the hand-over as debt or a decision.
+6. **Review.** The design reviewer gets the preview and the spec, never the builder's notes: every state, copy against the glossary, values the design system doesn't have, accessibility checked by hand, the markers of generated-looking UI, prototype honesty (with the job's action built up to the step the demo can't take), deceptive patterns. Two reviews at most: the second checks the first one's findings and the page as a whole, and what it leaves goes to the hand-over as debt or a decision. The code review runs once, and again only when it found a Blocker or a Major.
 7. **Hand off.** What is final, the design-system changes, the UX debt and a usability test plan.
 
 `/product-design quick` makes a small change to a screen that exists: the UI teammate builds it and both reviewers check what it touched, once, under the project's rules and decisions. It runs only when you ask for it; a small change asked for in passing is an ordinary edit, and after the first run the lead offers a pointer in your CLAUDE.md, so ordinary sessions follow the rules, decisions, design system and glossary too. `/product-design frame`, `build`, `review`, `feedback` (crit notes or test findings into changes), `handoff` and `capture` (a rule for the project) run one part.
@@ -106,7 +106,7 @@ With no screens and no design system in the project, the run starts further back
 - **The team does the work.** Only the UI teammate writes screen files (markup, styles and the scripts the page runs on); `flows.md` and `copy.md` belong to their teammates.
 - **One step at a time.** A teammate starts once the steps it reads have returned: flows, then copy, then the build, then both reviews side by side, then the fixes. Teammates work in the background; the lead ends its turn and the completion notice wakes it.
 - **Models by the plan.** An Agent call can set only the model the plan gives the teammate.
-- **No finish without the reviews.** While screens changed after the last design review, code review and verdict in `design/review.md`, the lead is asked to run them before it finishes. Waiting for a teammate still at work is always allowed.
+- **No finish without the reviews.** While screens changed after the last design review and verdict in `design/review.md`, or after the last code review when its verdict wasn't ship, the lead is asked to run them before it finishes. Waiting for a teammate still at work is always allowed.
 
 The gates stay quiet without `design/run.json`, while the run is paused, and once a finished run's reviews are fresh.
 

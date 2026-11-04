@@ -19,7 +19,11 @@ Round: <n> · Date: <date> · Preview: <url>
 
 ## Code review
 
-<verdict and the top findings from What Breaks in AI Code>
+**Code verdict: <ship or fix>**
+
+<!-- ship: no Blocker or Major, so interface fixes don't need another code review. fix: a Blocker or a Major, reviewed again after the fixes. -->
+
+<the top findings from What Breaks in AI Code>
 
 ## Not reviewed
 
