@@ -2,7 +2,7 @@
 
 A product design team for Claude Code. One request takes a brief, or a Figma frame, to screens in code that were reviewed on the rendered page.
 
-> **Status: 0.4.0.** Tested blind on two fictional products, each against the bare agent and another harness on Sonnet. The harness covered more of each job than the bare agent in every run, and its screens ranked first in both tests; it also cost 10 to 15 times a single prompt, and by the strict rules written before the runs neither test proves it yet. The fixes from the second test are being checked on a third product.
+> **Status: 0.4.0, early.** So far it has been tried only on fictional products that its author built to test it. Those runs found defects that this version fixes; they can't show whether it beats working without it.
 
 ## Install
 
@@ -41,7 +41,7 @@ A product design team for Claude Code. One request takes a brief, or a Figma fra
 
 ## Before it starts
 
-The lead takes the mode from your request (a new screen or feature runs the full path; a small change to a screen that exists runs `quick`), says the plan in one line with the models and roughly how long it takes, and starts. Steer it in words at any point: "quick", "only the brief", "build on Opus", "everything on Sonnet", "decide yourself and show me at the end". It asks first only when the request could be either a small change or a new feature, or when the run is unusually large. As a guide from the blind tests on Sonnet, a new screen on the full path took 25 to 40 minutes and cost 10 to 15 times a single prompt; a quick change is a fraction of that.
+The lead takes the mode from your request (a new screen or feature runs the full path; a small change to a screen that exists runs `quick`), says the plan in one line with the models and roughly how long it takes, and starts. Steer it in words at any point: "quick", "only the brief", "build on Opus", "everything on Sonnet", "decide yourself and show me at the end". It asks first only when the request could be either a small change or a new feature, or when the run is unusually large. As a guide from the test runs on Sonnet, a new screen on the full path took 25 to 40 minutes and cost 10 to 15 times a single prompt; a quick change is a fraction of that.
 
 ## The team
 
@@ -63,7 +63,7 @@ The lead takes the mode from your request (a new screen or feature runs the full
 4. **Copy.** Every string and the glossary.
 5. **Build.** From the product's system, every state reachable, and the action the screen exists for built up to the step the demo can't take.
 6. **Review.** The design reviewer gets the preview and the spec, never the builder's notes: every state, copy against the glossary, values the design system doesn't have, accessibility checked by hand, the markers of generated-looking UI, prototype honesty (with the job's action built up to the step the demo can't take), deceptive patterns. Two reviews at most: the second checks the first one's findings and the page as a whole, and what it leaves goes to the hand-over as debt or a decision. The code review runs once, and again only when it found a Blocker or a Major.
-7. **Hand off.** What is final, the design-system changes, the UX debt and a usability test plan.
+7. **Hand off.** What is final, the design-system changes, how each success criterion will be measured once the screens are in use, the UX debt and a usability test plan.
 
 `/product-design quick` makes a small change to a screen that exists: the UI teammate builds it and both reviewers check what it touched, once, under the project's rules and decisions. It runs only when you ask for it; a small change asked for in passing is an ordinary edit, and after the first run the lead offers a pointer in your CLAUDE.md, so ordinary sessions follow the rules, decisions, design system and glossary too. `/product-design frame`, `build`, `review`, `feedback` (crit notes or test findings into changes), `handoff` and `capture` (a rule for the project) run one part.
 
@@ -91,7 +91,7 @@ With no screens and no design system in the project, the run starts further back
 | `design/flows.md` | Tasks, screens and every state |
 | `design/copy.md` | Glossary and strings |
 | `design/review.md` | Verdict and findings, each with a measurement and a source |
-| `design/handoff.md` | What is final, the design-system change record, the UX debt |
+| `design/handoff.md` | What is final, the design-system change record, how to measure the criteria, the UX debt |
 | `design/test-plan.md` | Tasks, participants and findings by who failed which task |
 | `design/run.json` | Where the run is |
 | `design/rules.md` | The project's standing rules, kept between runs |

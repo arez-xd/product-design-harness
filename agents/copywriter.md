@@ -28,4 +28,4 @@ Sample content such as names and amounts reads like the product's real data and 
 
 ## Hand back
 
-The glossary decisions that change existing words, strings that need the user (legal text, prices, promises), and keys `flows.md` asked for that you couldn't write.
+The glossary decisions that change existing words, strings that need the user (legal text, prices, promises), keys `flows.md` asked for that you couldn't write, and strings you would add that `flows.md` doesn't ask for (a control, a state), as gaps for the lead, so the flows and the copy describe the same screen.
