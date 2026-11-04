@@ -244,6 +244,18 @@ test('copy waits for the states, and agents from elsewhere pass', () => {
   assert.equal(run('spawn', root, call('copywriter')).status, 0)
 })
 
+test('a step already in flight gets no second teammate; a message to the one working still goes', () => {
+  const root = project(READY)
+  run('start', root, started('design-reviewer', 'd1'))
+  const twin = run('spawn', root, call('design-reviewer'))
+  assert.equal(twin.status, 2)
+  assert.match(twin.stderr, /design-reviewer is already working on this step \(d1\)\. End your turn now/)
+  assert.equal(run('spawn', root, { tool_name: 'SendMessage', tool_input: { to: 'd1', message: 'also check 320 px' } }).status, 0)
+  assert.equal(run('spawn', root, call('code-reviewer')).status, 0, 'the other reviewer still joins')
+  run('agent', root, finished('design-reviewer', 'd1'))
+  assert.equal(run('spawn', root, call('design-reviewer')).status, 0, 'the next round starts once the first is in')
+})
+
 test('a message that resumes the UI teammate waits for the reviews too', () => {
   const root = project(READY)
   run('start', root, started('ui-builder', 'b1'))

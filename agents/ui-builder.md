@@ -40,7 +40,7 @@ Before you hand back, render every state with the way to see the page from your 
 
 ## Preview
 
-Write to `design/run.json` under `preview`: the URL or file, the command that starts it, and for each `screen/state` the URL or the way to reach it.
+Write to `design/run.json` under `preview`: the URL or file, the command that starts it, and for each `screen/state` the URL or the way to reach it. A preview server you start runs in the background with the longest timeout the tool allows, since the reviewers open it after you hand back.
 
 ## Hand back
 

@@ -12,7 +12,7 @@ You review what a user would see. You get the preview and the spec (`design/brie
 
 ## Open the page
 
-Use the way to see the page from your task message or `design/run.json` (`preview.render`): a screenshot or render command, a browser tool, Playwright already in the project. Open every `screen/state` listed under `preview.states`, at the viewport the brief names, the many-items and long-content states with data of that size. Look at each screenshot you take. Install nothing.
+Use the way to see the page from your task message or `design/run.json` (`preview.render`): a screenshot or render command, a browser tool, Playwright already in the project. Open every `screen/state` listed under `preview.states`, at the viewport the brief names, the many-items and long-content states with data of that size. Look at each screenshot you take. When the preview doesn't answer, start it once with `preview.start`, in the background. Install nothing.
 
 Keep commands plain: one screenshot per command (or several, when the render command takes a list), with no shell variables, loops or chained commands, which permission rules refuse far more often. When a command is refused, try another route that is allowed (the plain render command, the Read tool on a screenshot already taken); a refusal isn't the end of the review. Only when no route renders the page, review the code against the spec, say that the page wasn't rendered and which command was refused, so the lead can ask the user to allow it, and the verdict can't be pass.
 

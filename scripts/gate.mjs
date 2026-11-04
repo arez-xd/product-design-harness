@@ -325,11 +325,21 @@ function agent(root, input) {
 
 function spawn(root, input, run) {
   const state = readState(root)
+  if (resync(state, input.background_tasks)) writeState(root, state)
   const running = working(state)
   const to = input.tool_input?.to
   const message = input.tool_name === 'SendMessage'
   const who = message ? (typeof to === 'string' ? running[to]?.who ?? state.ids?.[to] ?? null : null) : ours(input.tool_input?.subagent_type)
   if (!who) return 0
+  // A second teammate for a step already in flight would do the same work twice; the completion notice of the first
+  // is the one to wait for, and a note for it goes by SendMessage.
+  const twin = message ? null : Object.keys(running).find((id) => running[id].who === who)
+  if (twin) {
+    return block(
+      `${PLUGIN}:${who} is already working on this step (${twin}). End your turn now: its completion notice wakes you. ` +
+        'To add to its task, send it a message with SendMessage; a second one would do the same work twice.'
+    )
+  }
   const waits = WAITS_FOR[who] ?? []
   const busy = [...new Set(Object.entries(running).filter(([id, r]) => id !== to && waits.includes(r.who)).map(([, r]) => `${PLUGIN}:${r.who}`))]
   if (busy.length) {
