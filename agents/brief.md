@@ -31,6 +31,7 @@ Go through the data the screens will show, field by field, then the fields that 
 
 - **Each field:** what it means to the person, and what it asks them to know or do: a status to act on, a reason to show, a limit to respect, a date that matters.
 - **Fields that act on each other:** one that changes what another means (a hold that takes an item out of a count, an open request that covers a shortfall), one that moves toward another (a rate toward a limit, a quantity toward a date), one that sets a condition on another (a minimum, a cutoff, a pack or batch size). Each pair that changes what the person should do becomes a state or a number on the screen.
+- **Rules around the data:** what the product's settings, docs and policies say about it (how often something goes out, what counts as urgent, when a clock pauses, how things are grouped when they are sent) acts on the fields like another field, so it joins the walk. Where a rule and the data disagree, say so.
 - **Values that don't fit:** a reference to something missing, an empty list, a duplicate name, a value far outside its usual range.
 
 Write the walk in `brief.md` under "The data": one row per field or pair, with what it means and what the screen does with it. A pair you leave out on purpose gets one line saying why.
