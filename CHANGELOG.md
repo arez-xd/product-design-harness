@@ -2,7 +2,9 @@
 
 ## 0.4.0 (unreleased)
 
-After the smoke runs of 0.3.0 and two full blind tests on fictional products (Oakvane, then Tenwick), each against the bare agent and revfactory/harness on Sonnet, newest first:
+After the smoke runs of 0.3.0 and three full blind tests on fictional products (Oakvane, Tenwick, then Wrenfield), each against the bare agent and revfactory/harness on Sonnet, newest first:
+
+- **After the full test on Wrenfield** (a third fresh target), where the harness again did the job more completely than both other arms and looked level with them, and two of its builds put a bordered button with words on every flagged row, which the reviews measured for wrapping and the fixes shortened: an action that needs words, or changes from row to row, takes the system's quietest labelled style or moves into the row's menu or detail, and bordered or filled buttons stay where one action leads; a flag that belongs to a group, such as a person's week, is said once on the group; the design review weighs row actions against the primary action and keeps that finding open while they compete with it.
 
 - **After the same quick change on Sonnet**, where the build again paid for ten phone numbers with every row (a column hidden at 1280 px, client names cut at 1440 px), and the first design review, stopped by one refused command, read only the code and still counted as a round, so the second and last review found it too late to fix: a design review counts once it has rendered the page; a refusal covers that one command, and the reviewer runs the plain render command before it concludes the page can't be rendered; in quick mode a Major in what the change touched gets the one more round a Blocker gets.
 - **After the quick smoke run on the final version**, where the builder's preview server ran out of time during the second review and woke the builder, and the lead started that review a second time: a teammate for a step already in flight is held back, with the way to add to its task; a preview server runs with the longest timeout, and a reviewer starts it when it doesn't answer; the lead moves and copies files with plain commands.
