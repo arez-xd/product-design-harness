@@ -62,7 +62,7 @@ The lead takes the mode from your request (a new screen or feature runs the full
 3. **Flows and states.**
 4. **Copy.**
 5. **Build.**
-6. **Review.** The design reviewer gets the preview and the spec, never the builder's notes: every state, copy against the glossary, values the design system doesn't have, accessibility checked by hand, the markers of generated-looking UI, prototype honesty, deceptive patterns. Two rounds of fixes at most.
+6. **Review.** The design reviewer gets the preview and the spec, never the builder's notes: every state, copy against the glossary, values the design system doesn't have, accessibility checked by hand, the markers of generated-looking UI, prototype honesty (with the job's action built up to the step the demo can't take), deceptive patterns. Two reviews at most: what the second leaves goes to the hand-over as debt or a decision.
 7. **Hand off.** What is final, the design-system changes, the UX debt and a usability test plan.
 
 `/product-design quick` makes a small change to a screen that exists: the UI teammate builds it and both reviewers check what it touched, once, under the project's rules and decisions. It runs only when you ask for it; a small change asked for in passing is an ordinary edit, and after the first run the lead offers a pointer in your CLAUDE.md, so ordinary sessions follow the rules, decisions, design system and glossary too. `/product-design frame`, `build`, `review`, `feedback` (crit notes or test findings into changes), `handoff` and `capture` (a rule for the project) run one part.
