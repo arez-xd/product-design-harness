@@ -11,7 +11,14 @@ A product design team for Claude Code. One request takes a brief, or a Figma fra
 /plugin install product-design-harness@arez-xd
 ```
 
-[Design Taste](https://github.com/arez-xd/ux-ui-design-taste) and [What Breaks in AI Code](https://github.com/arez-xd/what-breaks-in-ai-code) install with it. The hooks need Node 18 or later. To work from Figma, add the official Figma plugin:
+The UI teammate and the design reviewer use [Design Taste](https://github.com/arez-xd/ux-ui-design-taste), the code reviewer uses [What Breaks in AI Code](https://github.com/arez-xd/what-breaks-in-ai-code); both come from the same marketplace:
+
+```text
+/plugin install design-taste@arez-xd
+/plugin install what-breaks-in-ai-code@arez-xd
+```
+
+The hooks need Node 18 or later. To work from Figma, add the official Figma plugin:
 
 ```text
 /plugin install figma@claude-plugins-official
@@ -69,7 +76,7 @@ The lead takes the mode from your request (a new screen or feature runs the full
 
 ## Models
 
-Every teammate runs on your session's model unless the plan says otherwise. On Opus or Fable, flows, copy and a code review of interface-only changes run on Sonnet, where the stronger model adds little; a code review that touches server code, data writes, money or permissions stays on your model. Any of it can be set per teammate in `design/run.json` under `models`. A hook holds the lead to this: no teammate runs above your model unless you asked for it. If `CLAUDE_CODE_SUBAGENT_MODEL` is set in your environment, check that it doesn't override the plan: before Claude Code 2.1.251 it took precedence over everything.
+Every teammate runs on your session's model unless the plan says otherwise. On Opus or Fable, flows, copy and a code review of interface-only changes run on Sonnet, where the stronger model adds little; a code review that touches server code, data writes, money or permissions stays on your model. Any of it can be set per teammate in `design/run.json` under `models`. A hook holds the lead to this: no teammate runs above your model unless you asked for it. If `CLAUDE_CODE_SUBAGENT_MODEL` is set in your environment, it can override the plan; unset it for a run.
 
 ## From a brief alone
 
@@ -114,6 +121,19 @@ The gates stay quiet without `design/run.json`, while the run is paused, and onc
 
 The Brief teammate reads the frames you link through the Figma MCP server and caches what it reads in `design/figma/` for the rest of the team. Figma's Starter plan and View or Collab seats allow 6 MCP calls a month, so a run spends at most 4 unless you allow more.
 
+## Requirements
+
+- Claude Code with plugins, subagents and hooks (the harness runs its teammates with the Agent tool).
+- Node 18 or later for the gates.
+- A way to render the project's screens: a dev server, a render command or a browser tool. A teammate that can't see the page can't review it.
+- For Figma, the official Figma plugin and a Figma account with MCP access.
+
+## Contributing
+
+Issues and pull requests are welcome at [github.com/arez-xd/product-design-harness](https://github.com/arez-xd/product-design-harness). The gates have tests: `npm test`. A change to a teammate's instructions is best sent with a run that shows what it fixed.
+
 ## License
+
+MIT, see [LICENSE](LICENSE). The harness's two companion plugins are MIT as well.
 
 MIT

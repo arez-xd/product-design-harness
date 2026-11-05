@@ -1,6 +1,6 @@
 {
   "name": "product-design-harness",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "A product design team for Claude Code, from a brief to reviewed screens in code.",
   "license": "MIT",

@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0 (unreleased)
+## 0.4.0
 
 After the smoke runs of 0.3.0 and three full blind tests on fictional products (Oakvane, Tenwick, then Wrenfield), each against the bare agent and revfactory/harness on Sonnet, newest first:
 

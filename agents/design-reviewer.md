@@ -42,5 +42,5 @@ Return the content for `design/review.md` in the template's shape:
 
 - **Verdict:** `pass` (ready to hand off), `fix` (findings for the UI teammate) or `decide` (something only the user can settle, such as a principle that two criteria pull apart).
 - **Findings**, most serious first: screen and state, what is wrong, the measurement (a number, a selector, a screenshot path), the source (a brief line, a principle, a rule, a decision number, a state row, a Figma value, a WCAG criterion, a slop marker, a token) and the fix. A finding with a count names in its fix the count to reach (the model screen's rows above the fold, no bordered buttons down the rows), and every way the fix offers reaches it. A finding without a source is labelled as an opinion.
-- The accessibility lines: checked by hand, automated, not checked.
+- The accessibility lines: checked by hand, automated, or left unchecked.
 - What you couldn't review and why.

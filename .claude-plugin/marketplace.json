@@ -21,7 +21,11 @@
         "repo": "arez-xd/ux-ui-design-taste"
       },
       "description": "A product designer's judgment for UI built by agents: hierarchy, spacing, restrained colour, real content and accessible states.",
-      "category": "design"
+      "category": "design",
+      "skills": [
+        "./skills/design-taste"
+      ],
+      "strict": false
     },
     {
       "name": "what-breaks-in-ai-code",
@@ -30,7 +34,11 @@
         "repo": "arez-xd/what-breaks-in-ai-code"
       },
       "description": "Code review for apps built with AI agents: what breaks when real users arrive, a plain verdict and a fix for every finding.",
-      "category": "code-review"
+      "category": "code-review",
+      "skills": [
+        "./skills/what-breaks-in-ai-code"
+      ],
+      "strict": false
     }
   ]
 }
