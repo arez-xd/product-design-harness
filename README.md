@@ -164,6 +164,17 @@ The Brief teammate reads the frames you link through the Figma MCP server and ca
 - A way to render the project's screens: a dev server, a render command or a browser tool. A teammate that can't see the page can't review it.
 - For Figma, the official Figma plugin and a Figma account with MCP access.
 
+## Other agents
+
+The harness is built on what Claude Code gives a plugin: subagents with their own instructions, tools and model, hooks that can block a tool call, and the plugin marketplace. The team and the gates need all three, so the full harness runs in Claude Code only.
+
+Parts of it carry over:
+
+- **The reviews.** [Design Taste](https://github.com/arez-xd/ux-ui-design-taste) and [What Breaks in AI Code](https://github.com/arez-xd/what-breaks-in-ai-code), the skills the UI teammate and the reviewers use, install into Codex, Cursor, GitHub Copilot and other agents with `npx skills add`.
+- **The method and the files.** The templates in `skills/product-design/templates/` and the order of the steps work as a checklist in any agent: brief and success criteria, decisions as options, every state, the copy, then the build, then a review on the rendered page. One agent playing every role loses the blind review and the gates, which are what keep a run honest.
+
+A port to another agent's subagents and hooks is welcome as a pull request.
+
 ## Status
 
 0.4.0, early. So far it has been tried only on fictional products its author built to test it. Those runs found defects that this version fixes; they can't show how it compares with working without it. What changed in each version is in the [changelog](CHANGELOG.md).
