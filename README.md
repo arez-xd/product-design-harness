@@ -18,13 +18,15 @@
 </p>
 
 <p align="center">
-  <a href="assets/film.mp4">▶ The film, 72 s</a> ·
+  <a href="https://github.com/user-attachments/assets/f7b9cd7c-c9b5-438f-b000-6b70cd4ef3c9">▶ The film, 72 s</a> ·
   <a href="#install">Install</a> ·
   <a href="#the-team">The team</a> ·
   <a href="#a-run">A run</a> ·
   <a href="#gates">Gates</a> ·
   <a href="#what-lands-in-your-project">What lands in your project</a>
 </p>
+
+https://github.com/user-attachments/assets/f7b9cd7c-c9b5-438f-b000-6b70cd4ef3c9
 
 ## Install
 
